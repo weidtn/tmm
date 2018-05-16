@@ -1,34 +1,56 @@
+######################
+#
+# Script for calculating Psi and Delta (Ellipsometry)
+# or the Power of Transmission
+# of variable ammount of periods
+# made out of alternating layers of ITO and Al
+# with variable thickness
+#
+# More Materials may be added later.
+#######################
+
 import tmm
-# import tmm.examples
-from numpy import pi, linspace, inf  # , array
-# from scipy.interpolate import interpld
+from numpy import pi, linspace, inf
 import matplotlib.pyplot as plt
 
 degree = pi / 180
 period = [10, 10]  # ammount, thickness (nm)
-layer1 = 5  # standard
+layer1 = 5
+
 
 # Materials:
 # Name = [n+jk, thickness in a period]
-ITO = [1.635 + 0.0102j, layer1]
-Al = [1.523 + 15.114j, (period[1] - ITO[1])]
+class material:
+    def __init__(self, n):
+        # n is the complex index of refraction
+        # given as 0.000+0.000j
+        self.n = n
 
-lambda_list = linspace(300, 3000,
-                       10000)  # Wavelength, minimum, maximum, number of steps
-d_list = [inf]  # starts with air at infinity
-for periods in range(0, period[0]):
-    d_list.append(ITO[1])
-    d_list.append(Al[1])
-d_list.append(inf)  # end with wafer(?) at infinity
-
-n_list = [1]  # starts with air
-for periods in range(0, period[0]):
-    n_list.append(ITO[0])
-    n_list.append(Al[0])
-n_list.append(3.49 + 0)  # Si (wafer)
+    def get_n(self):
+        return self.n
 
 
-def PsiDelta():
+class period:
+    def __init__(self, d, layer1):
+        self.d = d  # Thickness of one Period
+        self.layer1 = layer1  # Thickness of the first layer
+        self.layer2 = (d - layer1)
+
+    def get_layer1(self):
+        return self.layer1
+
+    def get_layer2(self):
+        return self.layer2
+
+    def get_d(self):
+        return self.d
+
+
+# ITO = [1.635 + 0.0102j, layer1]
+# Al = [1.523 + 15.114j, (period[1] - ITO[1])]
+
+
+def PsiDelta(n_list, d_list, lambda_list):
     psis = []
     Deltas = []
     for lambda_vac in lambda_list:
@@ -39,8 +61,8 @@ def PsiDelta():
     plt.plot(lambda_list, psis, lambda_list, Deltas)
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Psi and Delta')
-    title = "{} x {} nm periods with {} nm ITO".format(period[0], period[1],
-                                                       layer1)
+    title = "{} x {} nm periods with {} nm ITO".format(
+        int((len(d_list) - 2) / 2), d_list[1] + d_list[2], d_list[1])
     plt.title(title)
 
 
@@ -56,25 +78,51 @@ def transmission():
     plt.ylabel('Fraction of power Transmitted')
 
 
-def parameters():
+def main():
     while True:
         try:
-            period[0] = int(input('Number of periods: '))
-            period[1] = int(input('Thickness of one period (nm): '))
-            layer1 = int(input('Thickness of the ITO layer (nm): '))
+            num = int(input('Number of periods: '))
+            d = int(input('Thickness of one period (nm): '))
+            layer1 = int(
+                input('Thickness of the first layer in a period (nm): '))
             mode = input('Transmission (t) or Ellipsometry (e)? ')
             break
         except:
-            print('Thats not a valid option')
+            print('Thats not a valid option!')
+
+    lambda_list = linspace(
+        300, 3000, 10000)  # Wavelength, minimum, maximum, number of steps
+
+    aperiod = period(d, layer1)
+    ITO = material(1.64 + 0.01j)
+    Al = material(1.52 + 15.1j)
+    # Setting up the list with thicknesses
+    d_list = [inf]  # starts with air at infinity
+    for periods in range(0, num):
+        d_list.append(aperiod.get_layer1())
+        d_list.append(aperiod.get_layer2())
+    d_list.append(inf)  # end with wafer(?) at infinity
+
+    # Setting up the list with indices of refraction
+    n_list = [1]  # starts with air
+    for periods in range(0, num):
+        n_list.append(ITO.get_n())
+        n_list.append(Al.get_n())
+    n_list.append(3.49 + 0)  # Si (wafer)
+
+    # Starting the calculations:
     if mode == 't':
         transmission()
     elif mode == 'e':
-        PsiDelta()
+        PsiDelta(n_list, d_list, lambda_list)
+    elif mode == 'debug':
+        print('debug')
+        print(type(aperiod.get_layer1()))
     else:
         print('Not supported, programm closed!')
 
 
 if __name__ == "__main__":
-    parameters()
+    main()
     plt.show()
     print("Done")
