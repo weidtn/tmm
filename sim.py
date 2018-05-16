@@ -4,28 +4,14 @@ from numpy import pi, linspace, inf  # , array
 # from scipy.interpolate import interpld
 import matplotlib.pyplot as plt
 
-# Single-layer film with complicated wavelength-dependent n :
-# tmm.examples.sample2()
-
 degree = pi / 180
 period = [10, 10]  # ammount, thickness (nm)
-period[0] = int(input('Number of periods: '))
-period[1] = int(input('Thickness of one period (nm): '))
-layer1 = int(input('Thickness of the first ITO layer (nm): '))
-
+layer1 = 5  # standard
 
 # Materials:
 # Name = [n+jk, thickness in a period]
 ITO = [1.635 + 0.0102j, layer1]
 Al = [1.523 + 15.114j, (period[1] - ITO[1])]
-
-# for recreating the matlab-script for InP-Air-DBR
-# inp = [122.355]
-# air = 387.5
-# d_list = [
-#     inf, inp, air, inp, air, inp, 815, inp, air, inp, air, inp, air, inf
-# ]  # Thicknesses in nm
-# n_list = [1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167]
 
 lambda_list = linspace(300, 3000,
                        10000)  # Wavelength, minimum, maximum, number of steps
@@ -33,13 +19,13 @@ d_list = [inf]  # starts with air at infinity
 for periods in range(0, period[0]):
     d_list.append(ITO[1])
     d_list.append(Al[1])
-d_list.append(inf) # end with wafer(?) at infinity
+d_list.append(inf)  # end with wafer(?) at infinity
 
-n_list = [1] # starts with air
-for periods in range(0,period[0]):
+n_list = [1]  # starts with air
+for periods in range(0, period[0]):
     n_list.append(ITO[0])
     n_list.append(Al[0])
-n_list.append(3.49+0)  # Si (wafer)
+n_list.append(3.49 + 0)  # Si (wafer)
 
 
 def PsiDelta():
@@ -53,7 +39,8 @@ def PsiDelta():
     plt.plot(lambda_list, psis, lambda_list, Deltas)
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Psi and Delta')
-    title = "{} x {} nm periods with {} nm ITO".format(period[0], period[1], layer1)
+    title = "{} x {} nm periods with {} nm ITO".format(period[0], period[1],
+                                                       layer1)
     plt.title(title)
 
 
@@ -68,7 +55,26 @@ def transmission():
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Fraction of power Transmitted')
 
-transmission()
-# PsiDelta()
-plt.show()
-print("Done")
+
+def parameters():
+    while True:
+        try:
+            period[0] = int(input('Number of periods: '))
+            period[1] = int(input('Thickness of one period (nm): '))
+            layer1 = int(input('Thickness of the ITO layer (nm): '))
+            mode = input('Transmission (t) or Ellipsometry (e)? ')
+            break
+        except:
+            print('Thats not a valid option')
+    if mode == 't':
+        transmission()
+    elif mode == 'e':
+        PsiDelta()
+    else:
+        print('Not supported, programm closed!')
+
+
+if __name__ == "__main__":
+    parameters()
+    plt.show()
+    print("Done")
