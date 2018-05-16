@@ -1,5 +1,5 @@
 import tmm
-import tmm.examples
+# import tmm.examples
 from numpy import pi, linspace, inf  # , array
 # from scipy.interpolate import interpld
 import matplotlib.pyplot as plt
@@ -8,12 +8,15 @@ import matplotlib.pyplot as plt
 # tmm.examples.sample2()
 
 degree = pi / 180
-period = [100, 10]  # ammount, thickness (nm)
-layer1 = input('Thickness of the first ITO layer: ')
+period = [10, 10]  # ammount, thickness (nm)
+period[0] = int(input('Number of periods: '))
+period[1] = int(input('Thickness of one period (nm): '))
+layer1 = int(input('Thickness of the first ITO layer (nm): '))
+
 
 # Materials:
 # Name = [n+jk, thickness in a period]
-ITO = [1.635 + 0.0102j, int(layer1)]
+ITO = [1.635 + 0.0102j, layer1]
 Al = [1.523 + 15.114j, (period[1] - ITO[1])]
 
 # for recreating the matlab-script for InP-Air-DBR
@@ -24,13 +27,13 @@ Al = [1.523 + 15.114j, (period[1] - ITO[1])]
 # ]  # Thicknesses in nm
 # n_list = [1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167, 1, 3.167]
 
-lambda_list = linspace(1000, 3000,
+lambda_list = linspace(300, 3000,
                        10000)  # Wavelength, minimum, maximum, number of steps
 d_list = [inf]  # starts with air at infinity
 for periods in range(0, period[0]):
     d_list.append(ITO[1])
     d_list.append(Al[1])
-d_list.append(inf) # end with wafer? at infinity
+d_list.append(inf) # end with wafer(?) at infinity
 
 n_list = [1] # starts with air
 for periods in range(0,period[0]):
@@ -50,7 +53,8 @@ def PsiDelta():
     plt.plot(lambda_list, psis, lambda_list, Deltas)
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Psi and Delta')
-    # plt.title('test1')
+    title = "{} x {} nm periods with {} nm ITO".format(period[0], period[1], layer1)
+    plt.title(title)
 
 
 def transmission():
@@ -64,7 +68,7 @@ def transmission():
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Fraction of power Transmitted')
 
-# transmission()
-PsiDelta()
+transmission()
+# PsiDelta()
 plt.show()
 print("Done")
