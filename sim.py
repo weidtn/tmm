@@ -44,10 +44,6 @@ class period:
         return self.d
 
 
-# ITO = [1.635 + 0.0102j, layer1]
-# Al = [1.523 + 15.114j, (period[1] - ITO[1])]
-
-
 def PsiDelta(n_list, d_list, lambda_list):
     psis = []
     Deltas = []
@@ -74,6 +70,9 @@ def transmission():
     plt.plot(lambda_list, T_list)
     plt.xlabel('Wavelength (nm)')
     plt.ylabel('Fraction of power Transmitted')
+
+
+# ---------- Main function: ------------------
 
 
 def main():
