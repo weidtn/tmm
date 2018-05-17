@@ -88,7 +88,7 @@ def main():
             print('Thats not a valid option!')
 
     lambda_list = linspace(
-        300, 3000, 10000)  # Wavelength, minimum, maximum, number of steps
+        450, 3000, 10000)  # Wavelength, minimum, maximum, number of steps
 
     aperiod = period(d, layer1)
     ITO = material(1.64 + 0.01j)
