@@ -14,8 +14,6 @@ from numpy import pi, linspace, inf
 import matplotlib.pyplot as plt
 
 degree = pi / 180
-period = [10, 10]  # ammount, thickness (nm)
-layer1 = 5
 
 
 # Materials:
