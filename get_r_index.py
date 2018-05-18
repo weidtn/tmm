@@ -1,27 +1,58 @@
-#####################################
-#
-# return values:
-# cplx  - complex value
-# reP  real part
-# imP  imaginary part
-# input values:     mat_name     material name, e.g. 'SiO_2' (string)
-#                   wl       wavelength in nm (as numpy array)
-#                   RIorEPS      'RI' for refractive index (string)
-#                                'EPS' for permittivity (string)
-#                   imSign       return cplx as reP + i*ImP or reP - i*ImP
-#                                use '+' or '-' (string)
-#
-# disp. models:
-#                   vali         valid wavelength range for model
-#
-#####################################
+"""
+Script to calculate refractive indices for a range of wavelengths
+
+-----------------------------------------
+INPUT variables:
+
+mat_name = Material name (string)
+wl = Wavelength as np.linspace(min,max,points)
+imSign = n+jk: '+'
+         n-jk: '-'
+         (optional, standard is +)
+
+-------------------------------
+Your material can OUTPUT these variables (numpy arrays):
+
+refractive_index
+n
+k
+epsilon
+epsilon_real
+epsilon_imag
+
+---------------------------------
+Available materials for these models:
+
+Drude-Lorentz:  Au, ITO, ITO-RTA, Ag, Al, Cu, Cr, Ni, W, Ti, Pt
+
+-----------------
+Example usage in your scripts:
+import get_r_index
+Au = material(material='Au', wl=[100,1000,1000], imSign='+')
+print(Au.refractive_index)
+
+-------------------
+You can also run this file to quickly plot n and k for
+
+----------------------
+For questions:
+Nikolai Weidt: weidtn@gmail.com
+
+"""
 from math import sqrt
 import numpy as np
-from numpy import linspace
 
 
-def get_r_index(mat_name, wl, RIorEPS, imSign):
-    if mat_name == 'SiO_2':
+class material():
+
+    def __init__ (self, mat_name, wl, imSign='+'):
+
+        self.mat_name = mat_name
+        self.wl = wl
+        self.imSign = imSign
+
+
+        if self.mat_name == 'SiO_2':
 
         #        # fitting coefficients (IBD)
         #        B1 = -27.424
@@ -50,50 +81,50 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
         #        #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2, RIorEPS, imSign, vali)
 
         # fitting coefficients  (IBD Hans)
-        EgeV = [7.5554]
-        AeV = [106.67]
-        E0eV = [9.9221]
-        CeV = [0.3209]
-        eps_inf = [1.57696]
-        vali = [100, 10000]
+            EgeV = [7.5554]
+            AeV = [106.67]
+            E0eV = [9.9221]
+            CeV = [0.3209]
+            eps_inf = [1.57696]
+            vali = [100, 10000]
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf, RIorEPS, imSign, vali)
 
-    elif mat_name == 'SiO_2-II':
+        elif self.mat_name == 'SiO_2-II':
 
         # fitting coefficients  (IBD Taimoor)
-        EgeV = [7.563]
-        AeV = [77.4]
-        E0eV = [9.9639]
-        CeV = [0.7802]
-        eps_inf = [1.72683]
-        vali = [100, 10000]
+            EgeV = [7.563]
+            AeV = [77.4]
+            E0eV = [9.9639]
+            CeV = [0.7802]
+            eps_inf = [1.72683]
+            vali = [100, 10000]
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
 
-    elif mat_name == 'Si_3N_4':
+        elif self.mat_name == 'Si_3N_4':
 
         # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
-        EgeV = [4.5]
-        AeV = [59.2]
-        E0eV = [6.78]
-        CeV = [0.49]
-        eps_inf = [3.1]
-        vali = [100, 10000]
+            EgeV = [4.5]
+            AeV = [59.2]
+            E0eV = [6.78]
+            CeV = [0.49]
+            eps_inf = [3.1]
+            vali = [100, 10000]
 
         # ---- starting values
-        epsR = eps_inf
-        epsI = 0
+            epsR = eps_inf
+            epsI = 0
 
         # convert wl to eV
-        EeV = 1240. / wl
+            EeV = 1240. / wl
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
 
-    elif mat_name == 'Nb_2O_5':
+        elif self.mat_name == 'Nb_2O_5':
 
         #         # fitting coefficients (IBD)
         #         B1 = 1.5546
@@ -108,36 +139,36 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
         #          #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
         # fitting coefficients (IBD Taimoor)
-        C0 = 100
-        C1 = 10000000
-        N0 = 2.225
-        N1 = 180.6
-        N2 = 377
-        K0 = 0
-        K1 = 0
-        K2 = 0
-        vali = [400, 1000]
+            C0 = 100
+            C1 = 10000000
+            N0 = 2.225
+            N1 = 180.6
+            N2 = 377
+            K0 = 0
+            K1 = 0
+            K2 = 0
+            vali = [400, 1000]
 
         # applied material model: Cauchy
         #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2,                                    RIorEPS, imSign, vali)
 
-    elif mat_name == 'NCD':
+        elif self.mat_name == 'NCD':
 
         # fitting coefficients (CVD Cyril)
-        C0 = 100
-        C1 = 10000000
-        N0 = 2.397
-        N1 = 72.2
-        N2 = 56.6
-        K0 = 0
-        K1 = 34.303
-        K2 = 0.002
-        vali = [400, 1000]
+            C0 = 100
+            C1 = 10000000
+            N0 = 2.397
+            N1 = 72.2
+            N2 = 56.6
+            K0 = 0
+            K1 = 34.303
+            K2 = 0.002
+            vali = [400, 1000]
 
         # applied material model: Cauchy
         #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2,                                    RIorEPS, imSign, vali)
 
-    elif mat_name == 'Al_2O_3':
+        elif self.mat_name == 'Al_2O_3':
 
         #           # fitting coefficients (IBD)
         #           B1 = 5.17502
@@ -152,17 +183,17 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
         #           #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
         # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
-        n_inf = 1.56
-        w_g = 9.85
-        amp = [2.46]
-        frq = [10.4]
-        dmp = [0.44]
-        vali = [250, 1700]
+            n_inf = 1.56
+            w_g = 9.85
+            amp = [2.46]
+            frq = [10.4]
+            dmp = [0.44]
+            vali = [250, 1700]
 
         # applied material model: Horiba New Amorphous
         #[cplx, reP, imP] = n_Horiba_New_Amorphous(wl, n_inf, w_g, amp, frq,                                                  dmp, RIorEPS, imSign, vali)
 
-    elif mat_name == 'TiO_2':
+        elif self.mat_name == 'TiO_2':
 
         #           # fitting coefficients (IBD)
         #           B1 = -499.79
@@ -177,17 +208,17 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
         #           [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
         # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
-        n_inf = 2.096
-        w_g = 2.952
-        amp = [0.278]
-        frq = [4.282]
-        dmp = [0.652]
-        vali = [300, 1700]
+            n_inf = 2.096
+            w_g = 2.952
+            amp = [0.278]
+            frq = [4.282]
+            dmp = [0.652]
+            vali = [300, 1700]
 
         # applied material model: Horiba New Amorphous
         #[cplx, reP, imP] = n_Horiba_New_Amorphous(wl, n_inf, w_g, amp, frq,dmp, RIorEPS, imSign, vali)
 
-    elif mat_name == 'ZrO_2':
+        elif self.mat_name == 'ZrO_2':
 
         #         # fitting coefficients (IBD)
         #         B1 = -7.3043
@@ -202,30 +233,30 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
         #         [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
         # fitting coefficients (IBD Hans)
-        EgeV = [3.6053]
-        AeV = [111.17]
-        E0eV = [4.2382]
-        CeV = [2.7505]
-        eps_inf = [3.32592]
-        vali = [100, 10000]
+            EgeV = [3.6053]
+            AeV = [111.17]
+            E0eV = [4.2382]
+            CeV = [2.7505]
+            eps_inf = [3.32592]
+            vali = [100, 10000]
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
 
-    elif mat_name == 'ZrO_2-II':
+        elif self.mat_name == 'ZrO_2-II':
 
         # fitting coefficients (IBD Taimoor)
-        EgeV = [4.7926]
-        AeV = [359.08]
-        E0eV = [5.1421]
-        CeV = [2.7505]
-        eps_inf = [2.78023]
-        vali = [100, 10000]
+            EgeV = [4.7926]
+            AeV = [359.08]
+            E0eV = [5.1421]
+            CeV = [2.7505]
+            eps_inf = [2.78023]
+            vali = [100, 10000]
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
 
-    # elif mat_name == 'SodaLime':
+    # elif self.mat_name == 'SodaLime':
 
     #     # fitting coefficients (based on: Synowicki et al., Thin Solid Films, 519/9, 2907-2913 (2011))
     #     order = 9          # polynome order
@@ -245,199 +276,180 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
     #     # applied material model: polynome + exponential fit
     #     #[cplx, reP, imP] = n_polynome_exp(wl, order, cutoff, en_par, ek_par, pn_amp, pk_amp, RIorEPS, imSign, vali)
 
-    elif mat_name == 'ITO':
+        elif self.mat_name == 'ITO':
 
         # fitting coefficients (IBD, Wetterau)
-        w_p = 1.486  # plasma freq
-        amp = [1, 43.97]  # oscillator strength
-        gam = [0.148, 0.945]  # damping
-        frs = [0, 4.655]  # resonance freq
-        vali = [100, 10000]
+            w_p = 1.486  # plasma freq
+            amp = [1, 43.97]  # oscillator strength
+            gam = [0.148, 0.945]  # damping
+            frs = [0, 4.655]  # resonance freq
+            vali = [100, 10000]
 
-        # applied material model: Drude-Lorentz
-        cplx, reP, imP = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,
-                                         imSign, vali)
+           #material model : Drude Lorentz
+            self.model = 'Drude_Lorentz'
+        # cplx, reP, imP = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                 imSign, vali)
 
-    elif mat_name == 'ITO-RTA':
+        elif self.mat_name == 'ITO-RTA':
 
         # fitting coefficients (IBD, Wetterau)
-        w_p = 1.944  # plasma freq
-        amp = [1, 32.248]  # oscillator strength
-        gam = [0.206, 0.274]  # damping
-        frs = [0, 5.136]  # resonance freq
-        vali = [100, 10000]
+            w_p = 1.944  # plasma freq
+            amp = [1, 32.248]  # oscillator strength
+            gam = [0.206, 0.274]  # damping
+            frs = [0, 5.136]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        #[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'Au':
+        elif self.mat_name == 'Au':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 9.03  # plasma freq
-        amp = [0.76, 0.024, 0.01, 0.071, 0.601, 4.384]  # oscillator strength
-        gam = [0.053, 0.241, 0.345, 0.87, 2.494, 2.214]  # damping
-        frs = [0, 0.415, 0.83, 2.969, 4.304, 13.32]  # resonance freq
-        vali = [100, 10000]
+            w_p = 9.03  # plasma freq
+            amp = [0.76, 0.024, 0.01, 0.071, 0.601, 4.384]  # oscillator strength
+            gam = [0.053, 0.241, 0.345, 0.87, 2.494, 2.214]  # damping
+            frs = [0, 0.415, 0.83, 2.969, 4.304, 13.32]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        #[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'Ag':
+        elif self.mat_name == 'Ag':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 9.01  # plasma freq
-        amp = [0.845, 0.065, 0.124, 0.011, 0.84, 5.646]  # oscillator strength
-        gam = [0.048, 3.886, 0.452, 0.065, 0.916, 2.419]  # damping
-        frs = [0, 0.816, 4.481, 8.185, 9.083, 20.29]  # resonance freq
-        vali = [100, 10000]
+            w_p = 9.01  # plasma freq
+            amp = [0.845, 0.065, 0.124, 0.011, 0.84, 5.646]  # oscillator strength
+            gam = [0.048, 3.886, 0.452, 0.065, 0.916, 2.419]  # damping
+            frs = [0, 0.816, 4.481, 8.185, 9.083, 20.29]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'Al':
+        elif self.mat_name == 'Al':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 14.98  # plasma freq
-        amp = [0.523, 0.227, 0.050, 0.166, 0.030]  # oscillator strength
-        gam = [0.047, 0.333, 0.312, 1.351, 3.382]  # damping
-        frs = [0.000, 0.162, 1.544, 1.808, 3.473]  # resonance freq
-        vali = [100, 10000]
+            w_p = 14.98  # plasma freq
+            amp = [0.523, 0.227, 0.050, 0.166, 0.030]  # oscillator strength
+            gam = [0.047, 0.333, 0.312, 1.351, 3.382]  # damping
+            frs = [0.000, 0.162, 1.544, 1.808, 3.473]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        cplx, reP, imP = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,imSign, vali)
-
-    elif mat_name == 'Cu':
+        elif self.mat_name == 'Cu':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 10.83  # plasma freq
-        amp = [0.575, 0.061, 0.104, 0.723, 0.638]  # oscillator strength
-        gam = [0.030, 0.378, 1.056, 3.213, 4.305]  # damping
-        frs = [0.000, 0.291, 2.957, 5.300, 11.18]  # resonance freq
-        vali = [100, 10000]
+            w_p = 10.83  # plasma freq
+            amp = [0.575, 0.061, 0.104, 0.723, 0.638]  # oscillator strength
+            gam = [0.030, 0.378, 1.056, 3.213, 4.305]  # damping
+            frs = [0.000, 0.291, 2.957, 5.300, 11.18]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'Cr':
+        elif self.mat_name == 'Cr':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 10.75  # plasma freq
-        amp = [0.168, 0.151, 0.150, 1.149, 0.825]  # oscillator strength
-        gam = [0.047, 3.175, 1.305, 2.676, 1.335]  # damping
-        frs = [0.000, 0.121, 0.543, 1.970, 8.775]  # resonance freq
-        vali = [100, 10000]
+            w_p = 10.75  # plasma freq
+            amp = [0.168, 0.151, 0.150, 1.149, 0.825]  # oscillator strength
+            gam = [0.047, 3.175, 1.305, 2.676, 1.335]  # damping
+            frs = [0.000, 0.121, 0.543, 1.970, 8.775]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'Ni':
+        elif self.mat_name == 'Ni':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 15.92  # plasma freq
-        amp = [0.096, 0.100, 0.135, 0.106, 0.729]  # oscillator strength
-        gam = [0.048, 4.511, 1.334, 2.178, 6.292]  # damping
-        frs = [0.000, 0.174, 0.582, 1.597, 6.089]  # resonance freq
-        vali = [100, 10000]
+            w_p = 15.92  # plasma freq
+            amp = [0.096, 0.100, 0.135, 0.106, 0.729]  # oscillator strength
+            gam = [0.048, 4.511, 1.334, 2.178, 6.292]  # damping
+            frs = [0.000, 0.174, 0.582, 1.597, 6.089]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'W':
+        elif self.mat_name == 'W':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 13.22  # plasma freq
-        amp = [0.206, 0.054, 0.166, 0.706, 2.590]  # oscillator strength
-        gam = [0.064, 0.530, 1.281, 3.332, 5.836]  # damping
-        frs = [0.000, 1.004, 1.917, 3.580, 7.498]  # resonance freq
-        vali = [100, 10000]
+            w_p = 13.22  # plasma freq
+            amp = [0.206, 0.054, 0.166, 0.706, 2.590]  # oscillator strength
+            gam = [0.064, 0.530, 1.281, 3.332, 5.836]  # damping
+            frs = [0.000, 1.004, 1.917, 3.580, 7.498]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,imSign, vali)
-
-    elif mat_name == 'Ti':
+        elif self.mat_name == 'Ti':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 7.29  # plasma freq
-        amp = [0.148, 0.899, 0.393, 0.187, 0.001]  # oscillator strength
-        gam = [0.082, 2.276, 2.518, 1.663, 1.762]  # damping
-        frs = [0.000, 0.777, 1.545, 2.509, 1.943]  # resonance freq
-        vali = [100, 10000]
+            w_p = 7.29  # plasma freq
+            amp = [0.148, 0.899, 0.393, 0.187, 0.001]  # oscillator strength
+            gam = [0.082, 2.276, 2.518, 1.663, 1.762]  # damping
+            frs = [0.000, 0.777, 1.545, 2.509, 1.943]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                           imSign, vali)
-
-    elif mat_name == 'Pt':
+        elif self.mat_name == 'Pt':
 
         # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
-        w_p = 9.59  # plasma freq
-        amp = [0.333, 0.191, 0.659, 0.547, 3.576]  # oscillator strength
-        gam = [0.080, 0.517, 1.838, 3.668, 8.517]  # damping
-        frs = [0.000, 0.780, 1.314, 3.141, 9.249]  # resonance freq
-        vali = [100, 10000]
+            w_p = 9.59  # plasma freq
+            amp = [0.333, 0.191, 0.659, 0.547, 3.576]  # oscillator strength
+            gam = [0.080, 0.517, 1.838, 3.668, 8.517]  # damping
+            frs = [0.000, 0.780, 1.314, 3.141, 9.249]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
 
-        # applied material model: Drude-Lorentz
-        ##[cplx, reP, imP] = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS                                           imSign, vali)
-
-    elif mat_name == 'c-Si':
+        elif self.mat_name == 'c-Si':
 
         # fitting coefficients (Sentech SENpro Software)
-        C0 = [56.32, 240.9, 125.46, 16.66]
-        Beta = [-0.4589, -0.411, 0.3307, 0.2816]
-        Eg = [3.38, 3.6266, 4.2906, 5.3825]
-        Gam = [0.115, 0.3079, 0.203, 0.241]
-        Mu = [-0.8241, -0.3965, -0.9504, -0.9761]
-        vali = [100, 10000]
+            C0 = [56.32, 240.9, 125.46, 16.66]
+            Beta = [-0.4589, -0.411, 0.3307, 0.2816]
+            Eg = [3.38, 3.6266, 4.2906, 5.3825]
+            Gam = [0.115, 0.3079, 0.203, 0.241]
+            Mu = [-0.8241, -0.3965, -0.9504, -0.9761]
+            vali = [100, 10000]
 
-        eps_inf = 0.397200
-        m0 = -0.033029
-        x0 = 1.012892
-        k0 = 0.0241
+            eps_inf = 0.397200
+            m0 = -0.033029
+            x0 = 1.012892
+            k0 = 0.0241
 
         # applied material model: Leng-Lorentz
         ##[cplx, reP, imP] = n_Leng_Lorentz(wl, C0, Beta, Eg, Gam, Mu, eps_inf,                                          m0, x0, k0, RIorEPS, imSign, vali)
 
-    elif mat_name == 'a-Si':
+        elif self.mat_name == 'a-Si':
 
         # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
-        EgeV = [1.2]
-        AeV = [122]
-        E0eV = [3.45]
-        CeV = [2.54]
-        eps_inf = [1.15]
-        vali = [100, 10000]
+            EgeV = [1.2]
+            AeV = [122]
+            E0eV = [3.45]
+            CeV = [2.54]
+            eps_inf = [1.15]
+            vali = [100, 10000]
 
         # applied material model: Tauc-Lorentz
         ##[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
 
-    elif mat_name == 'PMMA':
+        elif self.mat_name == 'PMMA':
 
         # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
-        n_inf = 1.456
-        w_g = 3.667
-        amp = [0.13]
-        frq = [4.212]
-        dmp = [7.144]
-        vali = [200, 2100]
+            n_inf = 1.456
+            w_g = 3.667
+            amp = [0.13]
+            frq = [4.212]
+            dmp = [7.144]
+            vali = [200, 2100]
 
         # applied material model: Horiba New Amorphous
         ##[cplx, reP, imP] = n_Horiba_New_Amorphous(wl, n_inf, w_g, amp, frq,                                                  dmp, RIorEPS, imSign, vali)
 
-    elif mat_name == 'InP':
+        elif self.mat_name == 'InP':
 
         # fitting coefficients (MOCVD)
-        eps_f0 = 4.8
-        fres = [1.24, 2.62]
-        gamm = [0.001, 0.29]
-        sigm = [0.33, 4.4]
-        vali = [1000, 2000]
+            eps_f0 = 4.8
+            fres = [1.24, 2.62]
+            gamm = [0.001, 0.29]
+            sigm = [0.33, 4.4]
+            vali = [1000, 2000]
 
         # applied material model: Lorentz (meep), (only NIR > 1000 nm)
         ##[cplx, reP, imP] = n_meep_Lorentz(wl, eps_f0, fres, gamm, sigm,                                         RIorEPS, imSign, vali)
 
-    else:
-        print('Error, not supported material name!')
+        else:
+            print('Error, not supported material name! Try \'list\' ')
 
-    return cplx, reP, imP
+        if self.model == 'Drude_Lorentz':
+            self.n_Drude_Lorentz(wl, w_p, amp, gam, frs, imSign, vali)
 
 
 #########################################################
@@ -482,53 +494,34 @@ def get_r_index(mat_name, wl, RIorEPS, imSign):
 #               warning('Unknown option for parameter sign');
 #           end
 
+    @classmethod
+    def n_Drude_Lorentz(cls, wl, w_p, amp, gam, frs, imSign, vali):
 
-def n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS, imSign, vali):
+        # --- for pure Drude set only amp(1) non-zero
+        # --- for pure Lorentz set only amp(1) to zero
+        if wl[0] < vali[0] or wl[1] > vali[1]:
+            print('Wavelenght out of model validity range!')
 
-    # make lambda-list:
-    lambdas = np.asarray(linspace(wl[0], wl[1], wl[2]))
-    print(lambdas[0])
-    # --- for pure Drude set only amp(1) non-zero
-    # --- for pure Lorentz set only amp(1) to zero
+            # convert wavelength to eV
+        EeV = np.divide(1240, wl)
 
-    if lambdas[0] < vali[0] or lambdas[1] > vali[1]:
-        print('Wavelenght out of model validity range!')
+        epsC = 1 - np.divide((amp[0] * np.square(w_p)),
+                             (np.square(EeV) + gam[0] * EeV * 1j))  # Drude term:
 
-    # convert wavelength to eV
-    EeV = np.divide(1240, lambdas)
+        for i in range(1, len(amp), 1):  # Lorentz terms
+            epsC += (np.divide(
+                amp[i] * ((w_p)**2),
+                (np.square(frs[i]) - np.square(EeV) - gam[i] * EeV * 1j)))
 
-    epsC = 1 - np.divide((amp[0] * np.square(w_p)),
-                         (np.square(EeV) + gam[0] * EeV * 1j))
-
-    for i in range(1, len(amp), 1):  # Lorentz terms
-        epsC = epsC + (np.divide(amp[i]*((w_p)**2), (np.square(frs[i]) - np.square(EeV) - gam[i]*EeV*1j)))
-
-    # defining output values
-    if RIorEPS == 'RI':
-        reP = np.sqrt(
-            0.5 *
-            (np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) + epsC.real))
-        imP = np.sqrt(
-            0.5 *
-            (np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) - epsC.real))
-    elif RIorEPS == 'EPS':
-        reP = epsC.real
-        imP = epsC.imag
-    else:
-        print('Unknown option for parameter RIorEPS')
-
-    if imSign == '-':
-        cplx = reP - 1j * imP
-    elif imSign == '+':
-        cplx = reP + 1j * imP
-    else:
-        print('Unknown option for parameter sign')
-    return cplx, reP, imP
+        cls.epsilon = epsC
+        cls.epsilon_real = epsC.real
+        cls.epsilon_imag = epsC.imag
+        cls.n = np.sqrt(0.5 *(np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) + epsC.real))
+        cls.k = np.sqrt(0.5 *(np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) - epsC.real))
+        cls.refractive_index = cls.n + cls.k *1j
 
 
-# cplx, reP, imP = n_Drude_Lorentz([300,3000,10], 1.486, [1, 43.97], [0.148, 0.945], [0, 4.655], 'EPS', '+', [100, 10000])
-
-# function ##[cplx, reP, imP] = n_Leng_Lorentz(lambda, C0, Beta, Eg, Gam, Mu, eps_inf, m0, x0, k0, RIorEPS, imSign, vali)
+        # function ##[cplx, reP, imP] = n_Leng_Lorentz(lambda, C0, Beta, Eg, Gam, Mu, eps_inf, m0, x0, k0, RIorEPS, imSign, vali)
 
 #           # Source: Leng et al., JVST A, 16:3, 1654-1657 (1998)
 
@@ -664,3 +657,34 @@ def n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS, imSign, vali):
 # else
 #     warning('Unknown option for parameter sign');
 # end
+
+def ask_for_parameters():
+    while True:
+        try:
+            min = int(input('Minimum wavelenght: '))
+            max = int(input('Maximum wavelenght: '))
+            points = int(input('Datapoints between min and max: '))
+            mat_name = input('Material (\'list\' for available options): ')
+            break
+        except:
+            print('Not a valid option!')
+    if mat_name == 'list':
+        print('Au, ITO, ITO-RTA, Ag, Al, Cu, Cr, Ni, W, Ti, Pt')
+        try:
+            mat_name = input('Material: ')
+        except:
+            print('Not a valid option!')
+    return min, max, points, mat_name
+
+
+if __name__ == '__main__':  # You can load this file to quickly plot n vs k.
+    import matplotlib.pyplot as plt
+    try:
+        min, max, points, mat_name = ask_for_parameters()
+        lambdas = np.linspace(min, max, points)
+        mat = material(mat_name, lambdas)
+        plt.figure()
+        plt.plot(lambdas, mat.n, lambdas, mat.k)
+        plt.show()
+    except:
+        print('Program closed.')
