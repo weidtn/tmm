@@ -31,6 +31,9 @@ import get_r_index
 Au = get_r_index.material(material='Au', wl=[100,1000,1000], imSign='+')
 print(Au.refractive_index)
 
+OR:
+Au = get_r_index.get_cplx(material='Au', wl=1000)      # Gets the complex refractive index for ONE wavelength
+print(Au)
 -------------------
 You can also run this file to quickly plot n and k for
 
@@ -658,7 +661,7 @@ class material():
 #     warning('Unknown option for parameter sign');
 # end
 
-def get_r(mat_name, wl):  # Get refractive index for a given wavelength
+def get_cplx(mat_name, wl):  # Get refractive index for a given wavelength
    lambdas = np.linspace(wl,wl)
    mat = material(mat_name, lambdas)
    return np.mean(mat.refractive_index)
