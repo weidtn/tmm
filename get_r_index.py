@@ -508,7 +508,7 @@ class material():
         epsC = 1 - np.divide((amp[0] * np.square(w_p)),
                              (np.square(EeV) + gam[0] * EeV * 1j))  # Drude term:
 
-        for i in range(1, len(amp), 1):  # Lorentz terms
+        for i in range(1, len(amp), 1):  #  Lorentz terms
             epsC += (np.divide(
                 amp[i] * ((w_p)**2),
                 (np.square(frs[i]) - np.square(EeV) - gam[i] * EeV * 1j)))
@@ -658,6 +658,11 @@ class material():
 #     warning('Unknown option for parameter sign');
 # end
 
+def get_r(mat_name, wl):  # Get refractive index for a given wavelength
+   lambdas = np.linspace(wl,wl)
+   mat = material(mat_name, lambdas)
+   return np.mean(mat.refractive_index)
+
 def ask_for_parameters():
     while True:
         try:
@@ -675,7 +680,6 @@ def ask_for_parameters():
         except:
             print('Not a valid option!')
     return min, max, points, mat_name
-
 
 if __name__ == '__main__':  # You can load this file to quickly plot n vs k.
     import matplotlib.pyplot as plt
