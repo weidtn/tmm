@@ -12,6 +12,7 @@
 import tmm
 from numpy import pi, linspace, inf
 import matplotlib.pyplot as plt
+import numpy as np
 
 degree = pi / 180
 
@@ -60,7 +61,7 @@ def PsiDelta(n_list, d_list, lambda_list):
     plt.title(title)
 
 
-def transmission():
+def transmission(n_list, d_list, lambda_list):
 
     T_list = []
     for lambda_vac in lambda_list:
@@ -87,8 +88,7 @@ def main():
         except:
             print('Thats not a valid option!')
 
-    lambda_list = linspace(
-        450, 3000, 10000)  # Wavelength, minimum, maximum, number of steps
+    lambda_list = np.asarray(range(450, 3001, 1))  # Wavelength, minimum, maximum, number of steps
 
     aperiod = period(d, layer1)
     ITO = material(1.64 + 0.01j)
@@ -109,15 +109,14 @@ def main():
 
     # Starting the calculations:
     if mode == 't':
-        transmission()
+        transmission(n_list, d_list, lambda_list)
     elif mode == 'e':
         PsiDelta(n_list, d_list, lambda_list)
     elif mode == 'debug':
         print('debug')
-        print(type(aperiod.get_layer1()))
+        print(n_list)
     else:
         print('Not supported, programm closed!')
-
 
 if __name__ == "__main__":
     main()
