@@ -10,23 +10,13 @@
 #######################
 
 import tmm
-from numpy import pi, linspace, inf
+from numpy import pi, inf, linspace
+import get_r_index
 import matplotlib.pyplot as plt
-import numpy as np
 
 degree = pi / 180
-
-
-# Materials:
-# Name = [n+jk, thickness in a period]
-class material:
-    def __init__(self, n):
-        # n is the complex index of refraction
-        # given as 0.000+0.000j
-        self.n = n
-
-    def get_n(self):
-        return self.n
+lambda_list = linspace(450, 3000,
+                       10000)  # Wavelength, minimum, maximum, number of steps
 
 
 class period:
@@ -45,37 +35,6 @@ class period:
         return self.d
 
 
-def PsiDelta(n_list, d_list, lambda_list):
-    psis = []
-    Deltas = []
-    for lambda_vac in lambda_list:
-        e_data = tmm.tmm_core.ellips(n_list, d_list, 70 * degree, lambda_vac)
-        psis.append(e_data['psi'] / degree)  # angle in degrees
-        Deltas.append(e_data['Delta'] / degree)  # angle in degrees
-    plt.figure()
-    plt.plot(lambda_list, psis, lambda_list, Deltas)
-    plt.xlabel('Wavelength (nm)')
-    plt.ylabel('Psi and Delta')
-    title = "{} x {} nm periods with {} nm ITO".format(
-        int((len(d_list) - 2) / 2), d_list[1] + d_list[2], d_list[1])
-    plt.title(title)
-
-
-def transmission(n_list, d_list, lambda_list):
-
-    T_list = []
-    for lambda_vac in lambda_list:
-        T_list.append(
-            tmm.tmm_core.coh_tmm('s', n_list, d_list, 0, lambda_vac)['T'])
-    plt.figure()
-    plt.plot(lambda_list, T_list)
-    plt.xlabel('Wavelength (nm)')
-    plt.ylabel('Fraction of power Transmitted')
-
-
-# ---------- Main function: ------------------
-
-
 def main():
     while True:
         try:
@@ -88,35 +47,63 @@ def main():
         except:
             print('Thats not a valid option!')
 
-    lambda_list = np.asarray(range(450, 3001, 1))  # Wavelength, minimum, maximum, number of steps
-
     aperiod = period(d, layer1)
-    ITO = material(1.64 + 0.01j)
-    Al = material(1.52 + 15.1j)
+
     # Setting up the list with thicknesses
     d_list = [inf]  # starts with air at infinity
     for periods in range(0, num):
         d_list.append(aperiod.get_layer1())
-        d_list.append(aperiod.get_layer2())
+        if aperiod.get_layer2() != 0:
+            d_list.append(aperiod.get_layer2())
     d_list.append(inf)  # end with wafer(?) at infinity
 
-    # Setting up the list with indices of refraction
-    n_list = [1]  # starts with air
-    for periods in range(0, num):
-        n_list.append(ITO.get_n())
-        n_list.append(Al.get_n())
-    n_list.append(3.49 + 0)  # Si (wafer)
-
-    # Starting the calculations:
+    # # Starting the calculations:
     if mode == 't':
-        transmission(n_list, d_list, lambda_list)
+        T_list = []
+        for lambda_vac in lambda_list:
+            # Setting up the list with indices of refraction
+            n_list = [1]  # starts with air
+            for periods in range(0, num):
+                n_list.append(get_r_index.get_cplx('ITO', lambda_vac))
+                if aperiod.get_layer2() != 0:
+                    n_list.append(get_r_index.get_cplx('Al', lambda_vac))
+                n_list.append(3.49 + 0)  # Si (wafer)
+            T_list.append(
+                tmm.coh_tmm('s', n_list, d_list, 70 * degree, lambda_vac)['T'])
+        plt.figure()
+        plt.xlabel('Wavelength (nm)')
+        plt.ylabel('Fraction of power Transmitted')
+        plt.plot(lambda_list, T_list)
+
     elif mode == 'e':
-        PsiDelta(n_list, d_list, lambda_list)
+        psis = []
+        Deltas = []
+        for lambda_vac in lambda_list:
+            # Setting up the list with indices of refraction
+            n_list = [1]  # starts with air
+            for periods in range(0, num):
+                n_list.append(get_r_index.get_cplx('ITO', lambda_vac))
+                if aperiod.get_layer2() != 0:
+                    n_list.append(get_r_index.get_cplx('Al', lambda_vac))
+            n_list.append(3.49 + 0)  # Si (wafer)
+            e_data = tmm.tmm_core.ellips(n_list, d_list, 70 * degree,
+                                         lambda_vac)
+            psis.append(e_data['psi'] / degree)  # angle in degrees
+            Deltas.append(e_data['Delta'] / degree)  # angle in degrees
+        plt.figure()
+        plt.plot(lambda_list, psis, lambda_list, Deltas)
+        plt.xlabel('Wavelength (nm)')
+        plt.ylabel('Psi and Delta')
+        title = "{} x {} nm periods with {} nm ITO".format(
+            int((len(d_list) - 2) / 2), d_list[1] + d_list[2], d_list[1])
+        plt.title(title)
+
     elif mode == 'debug':
         print('debug')
         print(n_list)
     else:
         print('Not supported, programm closed!')
+
 
 if __name__ == "__main__":
     main()
