@@ -47,43 +47,41 @@ import numpy as np
 
 
 class material():
-
-    def __init__ (self, mat_name, wl, imSign='+'):
+    def __init__(self, mat_name, wl, imSign='+'):
 
         self.mat_name = mat_name
         self.wl = wl
         self.imSign = imSign
 
-
         if self.mat_name == 'SiO_2':
 
-        #        # fitting coefficients (IBD)
-        #        B1 = -27.424
-        #        B2 = 1.3995
-        #        B3 = 27.23
-        #        C1 = 5643.3
-        #        C2 = 10805
-        #        C3 = 5407.7
-        #        vali = [400 2000]
-        #
-        #        # applied material model:  Sellmeier  (only VIS + NIR)
-        #        #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
+            #        # fitting coefficients (IBD)
+            #        B1 = -27.424
+            #        B2 = 1.3995
+            #        B3 = 27.23
+            #        C1 = 5643.3
+            #        C2 = 10805
+            #        C3 = 5407.7
+            #        vali = [400 2000]
+            #
+            #        # applied material model:  Sellmeier  (only VIS + NIR)
+            #        #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
-        #        # fitting coefficients (IBD Taimoor)
-        #        C0 = 100
-        #        C1 = 10000000
-        #        N0 = 1.482
-        #        N1 = 54.9
-        #        N2 = -29
-        #        K0 = 0
-        #        K1 = 0
-        #        K2 = 0
-        #        vali = [400 1000]
-        #
-        #        # applied material model: Cauchy
-        #        #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2, RIorEPS, imSign, vali)
+            #        # fitting coefficients (IBD Taimoor)
+            #        C0 = 100
+            #        C1 = 10000000
+            #        N0 = 1.482
+            #        N1 = 54.9
+            #        N2 = -29
+            #        K0 = 0
+            #        K1 = 0
+            #        K2 = 0
+            #        vali = [400 1000]
+            #
+            #        # applied material model: Cauchy
+            #        #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2, RIorEPS, imSign, vali)
 
-        # fitting coefficients  (IBD Hans)
+            # fitting coefficients  (IBD Hans)
             EgeV = [7.5554]
             AeV = [106.67]
             E0eV = [9.9221]
@@ -96,7 +94,7 @@ class material():
 
         elif self.mat_name == 'SiO_2-II':
 
-        # fitting coefficients  (IBD Taimoor)
+            # fitting coefficients  (IBD Taimoor)
             EgeV = [7.563]
             AeV = [77.4]
             E0eV = [9.9639]
@@ -109,7 +107,7 @@ class material():
 
         elif self.mat_name == 'Si_3N_4':
 
-        # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
+            # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
             EgeV = [4.5]
             AeV = [59.2]
             E0eV = [6.78]
@@ -117,11 +115,11 @@ class material():
             eps_inf = [3.1]
             vali = [100, 10000]
 
-        # ---- starting values
+            # ---- starting values
             epsR = eps_inf
             epsI = 0
 
-        # convert wl to eV
+            # convert wl to eV
             EeV = 1240. / wl
 
         # applied material model: Tauc-Lorentz
@@ -129,19 +127,19 @@ class material():
 
         elif self.mat_name == 'Nb_2O_5':
 
-        #         # fitting coefficients (IBD)
-        #         B1 = 1.5546
-        #         B2 = 1.559
-        #         B3 = 0.86685
-        #         C1 = 54525
-        #         C2 = 54527
-        #         C3 = -2.3879e5
-        #         vali = [400 2000]
-        #
-        #         # applied material model:  Sellmeier
-        #          #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
+            #         # fitting coefficients (IBD)
+            #         B1 = 1.5546
+            #         B2 = 1.559
+            #         B3 = 0.86685
+            #         C1 = 54525
+            #         C2 = 54527
+            #         C3 = -2.3879e5
+            #         vali = [400 2000]
+            #
+            #         # applied material model:  Sellmeier
+            #          #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
-        # fitting coefficients (IBD Taimoor)
+            # fitting coefficients (IBD Taimoor)
             C0 = 100
             C1 = 10000000
             N0 = 2.225
@@ -157,7 +155,7 @@ class material():
 
         elif self.mat_name == 'NCD':
 
-        # fitting coefficients (CVD Cyril)
+            # fitting coefficients (CVD Cyril)
             C0 = 100
             C1 = 10000000
             N0 = 2.397
@@ -173,19 +171,19 @@ class material():
 
         elif self.mat_name == 'Al_2O_3':
 
-        #           # fitting coefficients (IBD)
-        #           B1 = 5.17502
-        #           B2 = -3.40698
-        #           B3 = -79.6032
-        #           C1 = 1.10646e4
-        #           C2 = 1.10363e4
-        #           C3 = -7.51505e9
-        #           vali = [400 2000]
-        #
-        #           # applied material model:  Sellmeier
-        #           #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
+            #           # fitting coefficients (IBD)
+            #           B1 = 5.17502
+            #           B2 = -3.40698
+            #           B3 = -79.6032
+            #           C1 = 1.10646e4
+            #           C2 = 1.10363e4
+            #           C3 = -7.51505e9
+            #           vali = [400 2000]
+            #
+            #           # applied material model:  Sellmeier
+            #           #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
-        # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
+            # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
             n_inf = 1.56
             w_g = 9.85
             amp = [2.46]
@@ -198,19 +196,19 @@ class material():
 
         elif self.mat_name == 'TiO_2':
 
-        #           # fitting coefficients (IBD)
-        #           B1 = -499.79
-        #           B2 = 2.113
-        #           B3 = 501.73
-        #           C1 = -1.3658e5
-        #           C2 = 82237
-        #           C3 = -1.357e5
-        #           vali = [400 2000]
-        #
-        #           # applied material model: Sellmeier
-        #           [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
+            #           # fitting coefficients (IBD)
+            #           B1 = -499.79
+            #           B2 = 2.113
+            #           B3 = 501.73
+            #           C1 = -1.3658e5
+            #           C2 = 82237
+            #           C3 = -1.357e5
+            #           vali = [400 2000]
+            #
+            #           # applied material model: Sellmeier
+            #           [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
-        # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
+            # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
             n_inf = 2.096
             w_g = 2.952
             amp = [0.278]
@@ -223,19 +221,19 @@ class material():
 
         elif self.mat_name == 'ZrO_2':
 
-        #         # fitting coefficients (IBD)
-        #         B1 = -7.3043
-        #         B2 = -1.3686
-        #         B3 = 12.177
-        #         C1 = -2296
-        #         C2 = 20571
-        #         C3 = 10609
-        #         vali = [400 2000]
-        #
-        #         # applied material model: Sellmeier
-        #         [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
+            #         # fitting coefficients (IBD)
+            #         B1 = -7.3043
+            #         B2 = -1.3686
+            #         B3 = 12.177
+            #         C1 = -2296
+            #         C2 = 20571
+            #         C3 = 10609
+            #         vali = [400 2000]
+            #
+            #         # applied material model: Sellmeier
+            #         [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
-        # fitting coefficients (IBD Hans)
+            # fitting coefficients (IBD Hans)
             EgeV = [3.6053]
             AeV = [111.17]
             E0eV = [4.2382]
@@ -248,7 +246,7 @@ class material():
 
         elif self.mat_name == 'ZrO_2-II':
 
-        # fitting coefficients (IBD Taimoor)
+            # fitting coefficients (IBD Taimoor)
             EgeV = [4.7926]
             AeV = [359.08]
             E0eV = [5.1421]
@@ -281,20 +279,20 @@ class material():
 
         elif self.mat_name == 'ITO':
 
-        # fitting coefficients (IBD, Wetterau)
+            # fitting coefficients (IBD, Wetterau)
             w_p = 1.486  # plasma freq
             amp = [1, 43.97]  # oscillator strength
             gam = [0.148, 0.945]  # damping
             frs = [0, 4.655]  # resonance freq
             vali = [100, 10000]
 
-           #material model : Drude Lorentz
+            #material model : Drude Lorentz
             self.model = 'Drude_Lorentz'
         # cplx, reP, imP = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                 imSign, vali)
 
         elif self.mat_name == 'ITO-RTA':
 
-        # fitting coefficients (IBD, Wetterau)
+            # fitting coefficients (IBD, Wetterau)
             w_p = 1.944  # plasma freq
             amp = [1, 32.248]  # oscillator strength
             gam = [0.206, 0.274]  # damping
@@ -304,9 +302,10 @@ class material():
 
         elif self.mat_name == 'Au':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 9.03  # plasma freq
-            amp = [0.76, 0.024, 0.01, 0.071, 0.601, 4.384]  # oscillator strength
+            amp = [0.76, 0.024, 0.01, 0.071, 0.601,
+                   4.384]  # oscillator strength
             gam = [0.053, 0.241, 0.345, 0.87, 2.494, 2.214]  # damping
             frs = [0, 0.415, 0.83, 2.969, 4.304, 13.32]  # resonance freq
             vali = [100, 10000]
@@ -314,9 +313,10 @@ class material():
 
         elif self.mat_name == 'Ag':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 9.01  # plasma freq
-            amp = [0.845, 0.065, 0.124, 0.011, 0.84, 5.646]  # oscillator strength
+            amp = [0.845, 0.065, 0.124, 0.011, 0.84,
+                   5.646]  # oscillator strength
             gam = [0.048, 3.886, 0.452, 0.065, 0.916, 2.419]  # damping
             frs = [0, 0.816, 4.481, 8.185, 9.083, 20.29]  # resonance freq
             vali = [100, 10000]
@@ -324,7 +324,7 @@ class material():
 
         elif self.mat_name == 'Al':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 14.98  # plasma freq
             amp = [0.523, 0.227, 0.050, 0.166, 0.030]  # oscillator strength
             gam = [0.047, 0.333, 0.312, 1.351, 3.382]  # damping
@@ -334,7 +334,7 @@ class material():
 
         elif self.mat_name == 'Cu':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 10.83  # plasma freq
             amp = [0.575, 0.061, 0.104, 0.723, 0.638]  # oscillator strength
             gam = [0.030, 0.378, 1.056, 3.213, 4.305]  # damping
@@ -344,7 +344,7 @@ class material():
 
         elif self.mat_name == 'Cr':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 10.75  # plasma freq
             amp = [0.168, 0.151, 0.150, 1.149, 0.825]  # oscillator strength
             gam = [0.047, 3.175, 1.305, 2.676, 1.335]  # damping
@@ -354,7 +354,7 @@ class material():
 
         elif self.mat_name == 'Ni':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 15.92  # plasma freq
             amp = [0.096, 0.100, 0.135, 0.106, 0.729]  # oscillator strength
             gam = [0.048, 4.511, 1.334, 2.178, 6.292]  # damping
@@ -364,7 +364,7 @@ class material():
 
         elif self.mat_name == 'W':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 13.22  # plasma freq
             amp = [0.206, 0.054, 0.166, 0.706, 2.590]  # oscillator strength
             gam = [0.064, 0.530, 1.281, 3.332, 5.836]  # damping
@@ -374,7 +374,7 @@ class material():
 
         elif self.mat_name == 'Ti':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 7.29  # plasma freq
             amp = [0.148, 0.899, 0.393, 0.187, 0.001]  # oscillator strength
             gam = [0.082, 2.276, 2.518, 1.663, 1.762]  # damping
@@ -384,7 +384,7 @@ class material():
 
         elif self.mat_name == 'Pt':
 
-        # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
+            # fitting coefficients (Raki? et al., Appl. Opt. 37, 5271-5283 (1998))
             w_p = 9.59  # plasma freq
             amp = [0.333, 0.191, 0.659, 0.547, 3.576]  # oscillator strength
             gam = [0.080, 0.517, 1.838, 3.668, 8.517]  # damping
@@ -394,7 +394,7 @@ class material():
 
         elif self.mat_name == 'c-Si':
 
-        # fitting coefficients (Sentech SENpro Software)
+            # fitting coefficients (Sentech SENpro Software)
             C0 = [56.32, 240.9, 125.46, 16.66]
             Beta = [-0.4589, -0.411, 0.3307, 0.2816]
             Eg = [3.38, 3.6266, 4.2906, 5.3825]
@@ -412,7 +412,7 @@ class material():
 
         elif self.mat_name == 'a-Si':
 
-        # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
+            # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
             EgeV = [1.2]
             AeV = [122]
             E0eV = [3.45]
@@ -425,7 +425,7 @@ class material():
 
         elif self.mat_name == 'PMMA':
 
-        # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
+            # fitting coefficients (Horiba, New Amorphous Dispersion Formula, Technical Note (2006))
             n_inf = 1.456
             w_g = 3.667
             amp = [0.13]
@@ -438,7 +438,7 @@ class material():
 
         elif self.mat_name == 'InP':
 
-        # fitting coefficients (MOCVD)
+            # fitting coefficients (MOCVD)
             eps_f0 = 4.8
             fres = [1.24, 2.62]
             gamm = [0.001, 0.29]
@@ -453,7 +453,6 @@ class material():
 
         if self.model == 'Drude_Lorentz':
             self.n_Drude_Lorentz(wl, w_p, amp, gam, frs, imSign, vali)
-
 
 #########################################################
 
@@ -508,8 +507,9 @@ class material():
             # convert wavelength to eV
         EeV = np.divide(1240, wl)
 
-        epsC = 1 - np.divide((amp[0] * np.square(w_p)),
-                             (np.square(EeV) + gam[0] * EeV * 1j))  # Drude term:
+        epsC = 1 - np.divide(
+            (amp[0] * np.square(w_p)),
+            (np.square(EeV) + gam[0] * EeV * 1j))  # Drude term:
 
         for i in range(1, len(amp), 1):  #  Lorentz terms
             epsC += (np.divide(
@@ -519,12 +519,16 @@ class material():
         cls.epsilon = epsC
         cls.epsilon_real = epsC.real
         cls.epsilon_imag = epsC.imag
-        cls.n = np.sqrt(0.5 *(np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) + epsC.real))
-        cls.k = np.sqrt(0.5 *(np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) - epsC.real))
-        cls.refractive_index = cls.n + cls.k *1j
-
+        cls.n = np.sqrt(
+            0.5 *
+            (np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) + epsC.real))
+        cls.k = np.sqrt(
+            0.5 *
+            (np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) - epsC.real))
+        cls.refractive_index = cls.n + cls.k * 1j
 
         # function ##[cplx, reP, imP] = n_Leng_Lorentz(lambda, C0, Beta, Eg, Gam, Mu, eps_inf, m0, x0, k0, RIorEPS, imSign, vali)
+
 
 #           # Source: Leng et al., JVST A, 16:3, 1654-1657 (1998)
 
@@ -661,10 +665,12 @@ class material():
 #     warning('Unknown option for parameter sign');
 # end
 
+
 def get_cplx(mat_name, wl):  # Get refractive index for a given wavelength
-   lambdas = np.linspace(wl,wl)
-   mat = material(mat_name, lambdas)
-   return np.mean(mat.refractive_index)
+    lambdas = np.linspace(wl, wl)
+    mat = material(mat_name, lambdas)
+    return np.mean(mat.refractive_index)
+
 
 def ask_for_parameters():
     while True:
@@ -683,6 +689,7 @@ def ask_for_parameters():
         except:
             print('Not a valid option!')
     return min, max, points, mat_name
+
 
 if __name__ == '__main__':  # You can load this file to quickly plot n vs k.
     import matplotlib.pyplot as plt
