@@ -28,7 +28,7 @@ Drude-Lorentz:  Au, ITO, ITO-RTA, Ag, Al, Cu, Cr, Ni, W, Ti, Pt
 -----------------
 Example usage in your scripts:
 import get_r_index
-Au = material(material='Au', wl=[100,1000,1000], imSign='+')
+Au = get_r_index.material(material='Au', wl=[100,1000,1000], imSign='+')
 print(Au.refractive_index)
 
 -------------------
