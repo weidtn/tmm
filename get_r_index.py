@@ -5,7 +5,7 @@ Script to calculate refractive indices for a range of wavelengths
 INPUT variables:
 
 mat_name = Material name (string)
-wl = Wavelength as np.linspace(min,max,points)
+wl = Wavelength as numpy array
 imSign = n+jk: '+'
          n-jk: '-'
          (optional, standard is +)
@@ -19,6 +19,7 @@ k
 epsilon
 epsilon_real
 epsilon_imag
+wl
 
 ---------------------------------
 Available materials for these models:
@@ -37,12 +38,8 @@ print(Au)
 -------------------
 You can also run this file to quickly plot n and k for
 
-----------------------
-For questions:
-Nikolai Weidt: weidtn@gmail.com
 
 """
-from math import sqrt
 import numpy as np
 
 
@@ -54,15 +51,15 @@ class material():
         self.imSign = imSign
 
         if self.mat_name == 'SiO_2':
-
-            #        # fitting coefficients (IBD)
-            #        B1 = -27.424
-            #        B2 = 1.3995
-            #        B3 = 27.23
-            #        C1 = 5643.3
-            #        C2 = 10805
-            #        C3 = 5407.7
-            #        vali = [400 2000]
+            # fitting coefficients (IBD)
+            # B1 = -27.424
+            # B2 = 1.3995
+            # B3 = 27.23
+            # C1 = 5643.3
+            # C2 = 10805
+            # C3 = 5407.7
+            # vali = [400, 2000]
+            # model = 'Sellmeier'
             #
             #        # applied material model:  Sellmeier  (only VIS + NIR)
             #        #[cplx, reP, imP] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
@@ -81,14 +78,14 @@ class material():
             #        # applied material model: Cauchy
             #        #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2, RIorEPS, imSign, vali)
 
-            # fitting coefficients  (IBD Hans)
+            # # fitting coefficients  (IBD Hans)
             EgeV = [7.5554]
             AeV = [106.67]
             E0eV = [9.9221]
             CeV = [0.3209]
             eps_inf = [1.57696]
             vali = [100, 10000]
-
+            model = 'Tauc-Lorentz'
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf, RIorEPS, imSign, vali)
 
@@ -152,7 +149,6 @@ class material():
 
         # applied material model: Cauchy
         #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2,                                    RIorEPS, imSign, vali)
-
         elif self.mat_name == 'NCD':
 
             # fitting coefficients (CVD Cyril)
@@ -468,15 +464,27 @@ class material():
 #               warning('Unknown option for parameter sign');
 #           end
 
-# function ##[cplx, reP, imP] = n_Sellmeier(lambda, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
+    @classmethod
+    def n_Sellmeier(cls, wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali):
 
-#           if ((min(lambda) < vali(1)) || (max(lambda) > vali(2)))
-#               warning('Wavelength out of model validity range!');
-#           end
-
-#           n_mat = sqrt(1 + B1*lambda.^2 ./ (lambda.^2 - C1) + B2*lambda.^2 ./ (lambda.^2 - C2) + B3*lambda.^2 ./ (lambda.^2 - C3));
-#           k_mat = 1./(n_mat .* (B1*lambda + B2./lambda + B3./lambda.^3));
-
+        if wl[0] < vali[0] or wl[1] > vali[1]:
+            print('Wavelenght out of model validity range!')
+        lambdasquare = np.squared(wl)
+        n_squared = 1 + np.divide(
+            (B1 * lambdasquare), (lambdasquare - C1)) + np.divide(
+                (B2 * lambdasquare), (lambdasquare - C2)) + np.divide(
+                    (B3 * lambdasquare), (lambdasquare - C3))
+        n_mat = np.sqrt(n_squared)
+        #           n_mat = sqrt(1 + B1*lambda.^2 ./ (lambda.^2 - C1) + B2*lambda.^2 ./ (lambda.^2 - C2) + B3*lambda.^2 ./ (lambda.^2 - C3));
+        k_mat = np.divide(1, (np.multiply(
+            n_mat,
+            (B1 * wl + np.divide(B2, wl) + np.divide(B3, np.power(wl, 3))))))
+        #           k_mat = 1./(n_mat .* (B1*lambda + B2./lambda + B3./lambda.^3));
+        cls.n = n_mat
+        cls.k = k_mat
+        cls.refractive_index = cls.n + cls.k * 1j
+        cls.epsilon_real = np.square(n_mat) - np.square(k_mat)
+        cls.epsilon_imag = 2 * np.multiply(n_mat, k_mat)
 #           # defining output values
 #           if strcmp(RIorEPS, 'RI')
 #               reP = n_mat;
@@ -528,7 +536,6 @@ class material():
         cls.refractive_index = cls.n + cls.k * 1j
 
         # function ##[cplx, reP, imP] = n_Leng_Lorentz(lambda, C0, Beta, Eg, Gam, Mu, eps_inf, m0, x0, k0, RIorEPS, imSign, vali)
-
 
 #           # Source: Leng et al., JVST A, 16:3, 1654-1657 (1998)
 
@@ -598,55 +605,59 @@ class material():
 #               warning('Unknown option for parameter sign');
 #           end
 
-# function ##[cplx, reP, imP] = n_Tauc_Lorentz(lambda, EgeV, E0eV, AeV, CeV, eps_inf, RIorEPS, imSign, vali)
+    @classmethod
+    def n_Tauc_Lorentz(cls, wl, EgeV, E0eV, AeV, CeV, eps_inf, RIorEPS, imSign,
+                       vali):
 
-#           # Source: Jellison & Modine, APL 69:3, 371-373 (1996) and
-#           # Erratum: Jellison & Modine, APL 69:14, 2137 (1996)
+        # Source: Jellison & Modine, APL 69:3, 371-373 (1996) and
+        # Erratum: Jellison & Modine, APL 69:14, 2137 (1996)
 
-#           if ((min(lambda) < vali(1)) || (max(lambda) > vali(2)))
-#               warning('Wavelength out of model validity range!');
-#           end
+        if wl[0] < vali[0] or wl[1] > vali[1]:
+            print('Wavelenght out of model validity range!')
 
-#           # starting values
-#           epsR = eps_inf;
-#           epsI = 0;
+        # starting values
+        epsR = eps_inf
+        epsI = 0
 
-#           # convert lambda to eV
-#           EeV = 1240./lambda;
+        # convert lambda to eV
+        EeV = np.divide(1240, wl)
 
-#           for idx = 1:1:length(AeV)
+        # for i in range(1,len(AeV), 1):
+        #               # ----- Absorption range (E > Egap)
+        #               epsI_tmp = (AeV(idx) * E0eV(idx) * CeV(idx) .* (EeV - EgeV(idx)).^2) ./ (EeV .* ((EeV.^2 - E0eV(idx)^2).^2 + (CeV(idx)^2 .* EeV.^2)));
 
-#               # ----- Absorption range (E > Egap)
-#               epsI_tmp = (AeV(idx) * E0eV(idx) * CeV(idx) .* (EeV - EgeV(idx)).^2) ./ (EeV .* ((EeV.^2 - E0eV(idx)^2).^2 + (CeV(idx)^2 .* EeV.^2)));
+        #               # ----- Transparent range (E <= Egap)
+        #               zix = find(EeV <= EgeV);
+        #               epsI_tmp(zix) = 0;
 
-#               # ----- Transparent range (E <= Egap)
-#               zix = find(EeV <= EgeV);
-#               epsI_tmp(zix) = 0;
+        #               # ----- Summing several oscillators
+        #               epsI = epsI + epsI_tmp;
 
-#               # ----- Summing several oscillators
-#               epsI = epsI + epsI_tmp;
+        #               # ----- substitutions
+        #               aln = (EgeV(idx)^2 - E0eV(idx)^2) .* EeV.^2 + (EgeV(idx)^2 .* CeV(idx)^2) - E0eV(idx)^2 .* (E0eV(idx)^2 + 3*EgeV(idx)^2);
+        #     atn = (EeV.^2 - E0eV(idx)^2) * (E0eV(idx)^2 + EgeV(idx)^2) + (EgeV(idx)^2 * CeV(idx)^2);
+        #     alp = sqrt(4*E0eV(idx)^2 - CeV(idx)^2);
+        #     gam = sqrt(E0eV(idx)^2 - 0.5*CeV(idx)^2);
+        #     zet = (EeV.^2 - gam^2).^2 + (0.25*alp^2 * CeV(idx)^2);
 
-#               # ----- substitutions
-#               aln = (EgeV(idx)^2 - E0eV(idx)^2) .* EeV.^2 + (EgeV(idx)^2 .* CeV(idx)^2) - E0eV(idx)^2 .* (E0eV(idx)^2 + 3*EgeV(idx)^2);
-#     atn = (EeV.^2 - E0eV(idx)^2) * (E0eV(idx)^2 + EgeV(idx)^2) + (EgeV(idx)^2 * CeV(idx)^2);
-#     alp = sqrt(4*E0eV(idx)^2 - CeV(idx)^2);
-#     gam = sqrt(E0eV(idx)^2 - 0.5*CeV(idx)^2);
-#     zet = (EeV.^2 - gam^2).^2 + (0.25*alp^2 * CeV(idx)^2);
+        #     # ----- KKR expression from epsI (sum of several oscillators)
+        #     epsR = epsR + (AeV(idx) * CeV(idx) .* aln) ./ (2*pi * alp * zet * E0eV(idx)) ...
+        #             .* log((E0eV(idx)^2 + EgeV(idx)^2 + alp * EgeV) ./ (E0eV(idx)^2 + EgeV(idx)^2 - alp * EgeV(idx))) ...
+        #             - (AeV(idx) .* atn ) ./ (pi * zet * E0eV(idx)) ...
+        #             .* (pi - atan((2*EgeV(idx) + alp) ./ CeV(idx)) + atan((-2*EgeV(idx) + alp) ./ CeV(idx))) ...
+        #             + 2*AeV(idx) * E0eV(idx) * EgeV(idx) .* (EeV.^2 - gam^2) ./ (pi * zet * alp) ...
+        #             * (pi + 2*atan(2*(gam^2 - EgeV(idx)^2) / (alp * CeV(idx)))) ...
+        #             - AeV(idx) * E0eV(idx) * CeV(idx) .* (EeV.^2 + EgeV(idx)^2) ./ (pi * zet .* EeV) ...
+        #             .* log(abs(EeV - EgeV(idx)) ./ (EeV + EgeV(idx))) + 2*AeV(idx) * E0eV(idx) * CeV(idx) * EgeV(idx) ./ (pi * zet) ...
+        #             .* log(abs(EeV - EgeV(idx)) .* (EeV + EgeV(idx)) ./ sqrt((E0eV(idx)^2 - EgeV(idx)^2)^2 + EgeV(idx)^2 * CeV(idx)^2));
 
-#     # ----- KKR expression from epsI (sum of several oscillators)
-#     epsR = epsR + (AeV(idx) * CeV(idx) .* aln) ./ (2*pi * alp * zet * E0eV(idx)) ...
-#             .* log((E0eV(idx)^2 + EgeV(idx)^2 + alp * EgeV) ./ (E0eV(idx)^2 + EgeV(idx)^2 - alp * EgeV(idx))) ...
-#             - (AeV(idx) .* atn ) ./ (pi * zet * E0eV(idx)) ...
-#             .* (pi - atan((2*EgeV(idx) + alp) ./ CeV(idx)) + atan((-2*EgeV(idx) + alp) ./ CeV(idx))) ...
-#             + 2*AeV(idx) * E0eV(idx) * EgeV(idx) .* (EeV.^2 - gam^2) ./ (pi * zet * alp) ...
-#             * (pi + 2*atan(2*(gam^2 - EgeV(idx)^2) / (alp * CeV(idx)))) ...
-#             - AeV(idx) * E0eV(idx) * CeV(idx) .* (EeV.^2 + EgeV(idx)^2) ./ (pi * zet .* EeV) ...
-#             .* log(abs(EeV - EgeV(idx)) ./ (EeV + EgeV(idx))) + 2*AeV(idx) * E0eV(idx) * CeV(idx) * EgeV(idx) ./ (pi * zet) ...
-#             .* log(abs(EeV - EgeV(idx)) .* (EeV + EgeV(idx)) ./ sqrt((E0eV(idx)^2 - EgeV(idx)^2)^2 + EgeV(idx)^2 * CeV(idx)^2));
+        # end
+        cls.epsilon_real = epsR
+        cls.epsilon_imag = epsI
+        cls.epsilon = epsR + epsI * 1j
 
-# end
 
-# # defining output values
+# defining output values
 # if strcmp(RIorEPS, 'RI')
 #     reP = sqrt(0.5 * (sqrt(epsR.^2 + epsI.^2) + epsR));
 #     imP = sqrt(0.5 * (sqrt(epsR.^2 + epsI.^2) - epsR));
@@ -677,7 +688,7 @@ def ask_for_parameters():
         try:
             min = int(input('Minimum wavelenght: '))
             max = int(input('Maximum wavelenght: '))
-            points = int(input('Datapoints between min and max: '))
+            step = float(input('Stepsize: '))
             mat_name = input('Material (\'list\' for available options): ')
             break
         except:
@@ -688,17 +699,19 @@ def ask_for_parameters():
             mat_name = input('Material: ')
         except:
             print('Not a valid option!')
-    return min, max, points, mat_name
+    return min, max, step, mat_name
 
 
 if __name__ == '__main__':  # You can load this file to quickly plot n vs k.
     import matplotlib.pyplot as plt
     try:
-        min, max, points, mat_name = ask_for_parameters()
-        lambdas = np.linspace(min, max, points)
+        min, max, step, mat_name = ask_for_parameters()
+        lambdas = np.arange(min, max+1, step)
         mat = material(mat_name, lambdas)
         plt.figure()
-        plt.plot(lambdas, mat.n, lambdas, mat.k)
+        plt.plot(lambdas, mat.n, label='n')
+        plt.plot(lambdas, mat.k, label='k')
+        plt.legend()
         plt.show()
     except:
         print('Program closed.')
