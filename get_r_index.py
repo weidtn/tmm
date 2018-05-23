@@ -25,6 +25,8 @@ wl
 Available materials for these models:
 
 Drude-Lorentz:  Au, ITO, ITO-RTA, Ag, Al, Cu, Cr, Ni, W, Ti, Pt
+Tauc-Lorentz: SiO_2, SiO_2-II, Si_3N_4, ZrO_2, ZrO_2-II, a-Si
+Sellmeier: no materials yet, but function should work
 
 -----------------
 Example usage in your scripts:
@@ -41,7 +43,10 @@ You can also run this file to quickly plot n and k for
 
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
+SUPPORTED_MATERIALS = [
+        'Au', 'ITO', 'ITO-RTA', 'Ag', 'Al', 'Cu', 'Cr', 'Ni', 'W', 'Ti', 'Pt', 'SiO_2', 'SiO_2-II', 'Si_3N_4', 'ZrO_2', 'ZrO_2-II', 'a-Si']
 
 class material():
     def __init__(self, mat_name, wl, imSign='+'):
@@ -79,25 +84,26 @@ class material():
             #        #[cplx, reP, imP] = n_Cauchy(wl, C0, C1, N0, N1, N2, K0, K1, K2, RIorEPS, imSign, vali)
 
             # # fitting coefficients  (IBD Hans)
-            EgeV = [7.5554]
-            AeV = [106.67]
-            E0eV = [9.9221]
-            CeV = [0.3209]
-            eps_inf = [1.57696]
+            EgeV = 7.5554
+            AeV = 106.67
+            E0eV = 9.9221
+            CeV = 0.3209
+            eps_inf = 1.57696
             vali = [100, 10000]
-            model = 'Tauc-Lorentz'
+            self.model = 'Tauc_Lorentz'
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf, RIorEPS, imSign, vali)
 
         elif self.mat_name == 'SiO_2-II':
 
             # fitting coefficients  (IBD Taimoor)
-            EgeV = [7.563]
-            AeV = [77.4]
-            E0eV = [9.9639]
-            CeV = [0.7802]
-            eps_inf = [1.72683]
+            EgeV = 7.56
+            AeV = 77.4
+            E0eV = 9.9639
+            CeV = 0.7802
+            eps_inf = 1.72683
             vali = [100, 10000]
+            self.model = 'Tauc_Lorentz'
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
@@ -105,19 +111,13 @@ class material():
         elif self.mat_name == 'Si_3N_4':
 
             # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
-            EgeV = [4.5]
-            AeV = [59.2]
-            E0eV = [6.78]
-            CeV = [0.49]
-            eps_inf = [3.1]
+            EgeV = 4.5
+            AeV = 59.2
+            E0eV = 6.78
+            CeV = 0.49
+            eps_inf = 3.1
             vali = [100, 10000]
-
-            # ---- starting values
-            epsR = eps_inf
-            epsI = 0
-
-            # convert wl to eV
-            EeV = 1240. / wl
+            self.model = 'Tauc_Lorentz'
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
@@ -230,12 +230,13 @@ class material():
             #         [n_cplx, n_mat, k_mat] = n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali)
 
             # fitting coefficients (IBD Hans)
-            EgeV = [3.6053]
-            AeV = [111.17]
-            E0eV = [4.2382]
-            CeV = [2.7505]
-            eps_inf = [3.32592]
+            EgeV = 3.6053
+            AeV = 111.17
+            E0eV = 4.2382
+            CeV = 2.7505
+            eps_inf = 3.32592
             vali = [100, 10000]
+            self.model = 'Tauc_Lorentz'
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
@@ -243,12 +244,13 @@ class material():
         elif self.mat_name == 'ZrO_2-II':
 
             # fitting coefficients (IBD Taimoor)
-            EgeV = [4.7926]
-            AeV = [359.08]
-            E0eV = [5.1421]
-            CeV = [2.7505]
-            eps_inf = [2.78023]
+            EgeV = 4.7926
+            AeV = 359.08
+            E0eV = 5.1421
+            CeV = 2.7505
+            eps_inf = 2.78023
             vali = [100, 10000]
+            self.model = 'Tauc_Lorentz'
 
         # applied material model: Tauc-Lorentz
         #[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
@@ -409,12 +411,13 @@ class material():
         elif self.mat_name == 'a-Si':
 
             # fitting coefficients (Palik, Handbook of Optical Constants of Solids, AP)
-            EgeV = [1.2]
-            AeV = [122]
-            E0eV = [3.45]
-            CeV = [2.54]
-            eps_inf = [1.15]
+            EgeV = 1.2
+            AeV = 122
+            E0eV = 3.45
+            CeV = 2.54
+            eps_inf = 1.15
             vali = [100, 10000]
+            self.model = 'Tauc_Lorentz'
 
         # applied material model: Tauc-Lorentz
         ##[cplx, reP, imP] = n_Tauc_Lorentz(wl, EgeV, E0eV, AeV, CeV, eps_inf,                                          RIorEPS, imSign, vali)
@@ -445,16 +448,20 @@ class material():
         ##[cplx, reP, imP] = n_meep_Lorentz(wl, eps_f0, fres, gamm, sigm,                                         RIorEPS, imSign, vali)
 
         else:
-            print('Error, not supported material name! Try \'list\' ')
+            print('Error, material name not supported! Try \'list\' ')
 
         if self.model == 'Drude_Lorentz':
-            self.n_Drude_Lorentz(wl, w_p, amp, gam, frs, imSign, vali)
+            self.n_Drude_Lorentz(wl, w_p, amp, gam, frs, vali)
+        elif self.model == 'Tauc_Lorentz':
+            self.n_Tauc_Lorentz(wl, EgeV, AeV, E0eV, CeV, eps_inf, vali)
+        elif self.model == 'Sellmeier':
+            self.n_Sellmeier(wl, B1, B2, B3, C1, C2, C3, vali)
+        else:
+            print('Not a valid model!')
 
 #########################################################
 
-# wl = [300,3000,10000]
 # ========== dispersion model functions
-
 # function ##[cplx, reP, imP] = n_Cauchy(lambda, C0, C1, N0, N1, N2, K0, K1, K2, RIorEPS, imSign, vali)
 
 #           if ((min(lambda) < vali(1)) || (max(lambda) > vali(2)))
@@ -465,7 +472,7 @@ class material():
 #           end
 
     @classmethod
-    def n_Sellmeier(cls, wl, B1, B2, B3, C1, C2, C3, RIorEPS, imSign, vali):
+    def n_Sellmeier(cls, wl, B1, B2, B3, C1, C2, C3, vali):
 
         if wl[0] < vali[0] or wl[1] > vali[1]:
             print('Wavelenght out of model validity range!')
@@ -485,91 +492,50 @@ class material():
         cls.refractive_index = cls.n + cls.k * 1j
         cls.epsilon_real = np.square(n_mat) - np.square(k_mat)
         cls.epsilon_imag = 2 * np.multiply(n_mat, k_mat)
-#           # defining output values
-#           if strcmp(RIorEPS, 'RI')
-#               reP = n_mat;
-#               imP = k_mat;
-#           elseif strcmp(RIorEPS, 'EPS')
-#               reP = n_mat.^2 - k_mat.^2;
-#               imP = 2 * n_mat .* k_mat;
-#           else
-#               warning('Unknown option for parameter RIorEPS');
-#           end
-
-#           if strcmp(imSign, '-')
-#               cplx = reP - 1i*imP;
-#           elseif strcmp(imSign, '+')
-#               cplx = reP + 1i*imP;
-#           else
-#               warning('Unknown option for parameter sign');
-#           end
 
     @classmethod
-    def n_Drude_Lorentz(cls, wl, w_p, amp, gam, frs, imSign, vali):
+    def n_Drude_Lorentz(cls, wl, w_p, amp, gam, frs, vali):
 
         # --- for pure Drude set only amp(1) non-zero
         # --- for pure Lorentz set only amp(1) to zero
         if wl[0] < vali[0] or wl[1] > vali[1]:
             print('Wavelenght out of model validity range!')
 
-            # convert wavelength to eV
-        EeV = np.divide(1240, wl)
+        # convert wavelength to eV
+        EeV = 1240/ wl
 
         epsC = 1 - np.divide(
-            (amp[0] * np.square(w_p)),
-            (np.square(EeV) + gam[0] * EeV * 1j))  # Drude term:
+            (amp[0] * w_p**2),
+            (EeV**2 + gam[0] * EeV * 1j))  # Drude term:
 
         for i in range(1, len(amp), 1):  #  Lorentz terms
-            epsC += (np.divide(
-                amp[i] * ((w_p)**2),
-                (np.square(frs[i]) - np.square(EeV) - gam[i] * EeV * 1j)))
+            epsC += (amp[i] * w_p**2) / (frs[i]**2 - EeV**2 - gam[i] * EeV * 1j)
 
+        n =  np.sqrt(0.5 * (np.sqrt((epsC.real**2) + (epsC.imag**2)) + epsC.real))
+        k =  np.sqrt(0.5 *(np.sqrt((epsC.real**2) + (epsC.imag**2)) - epsC.real))
         cls.epsilon = epsC
         cls.epsilon_real = epsC.real
         cls.epsilon_imag = epsC.imag
-        cls.n = np.sqrt(
-            0.5 *
-            (np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) + epsC.real))
-        cls.k = np.sqrt(
-            0.5 *
-            (np.sqrt(np.square(epsC.real) + np.square(epsC.imag)) - epsC.real))
-        cls.refractive_index = cls.n + cls.k * 1j
+        cls.n = n
+        cls.k = k
+        cls.refractive_index = n + k * 1j
 
         # function ##[cplx, reP, imP] = n_Leng_Lorentz(lambda, C0, Beta, Eg, Gam, Mu, eps_inf, m0, x0, k0, RIorEPS, imSign, vali)
 
-#           # Source: Leng et al., JVST A, 16:3, 1654-1657 (1998)
+        #   # Source: Leng et al., JVST A, 16:3, 1654-1657 (1998)
 
-#           if ((min(lambda) < vali(1)) || (max(lambda) > vali(2)))
-#               warning('Wavelength out of model validity range!');
-#           end
+        #   if ((min(lambda) < vali(1)) || (max(lambda) > vali(2)))
+        #       warning('Wavelength out of model validity range!');
+        #   end
 
-#           # convert lambda to eV
-#           EeV = 1240./lambda;
+        #   # convert lambda to eV
+        #   EeV = 1240./lambda;
 
-#           epsC = eps_inf + m0.*EeV.^x0 + 1i*k0;
+        #   epsC = eps_inf + m0.*EeV.^x0 + 1i*k0;
 
-#           for idx = 1:1:length(C0)
-#               epsC = epsC + (C0(idx)./EeV.^2) .* (exp(1i*Beta(idx)).*(Eg(idx)-EeV-1i*Gam(idx)).^Mu(idx) + exp(-1i*Beta(idx)).*(Eg(idx)+EeV+1i*Gam(idx)).^Mu(idx) - 2*real(exp(-1i*Beta(idx)).*(Eg(idx)+1i*Gam(idx)).^Mu(idx)) - 2*1i*Mu(idx).*EeV.*imag(exp(-1i*Beta(idx)).*(Eg(idx)+1i*Gam(idx)).^(Mu(idx)-1)) );
-#           end
-
-#           # defining output values
-#           if strcmp(RIorEPS, 'RI')
-#               reP = sqrt(0.5 * (sqrt(real(epsC).^2 + imag(epsC).^2) + real(epsC)));
-#               imP = sqrt(0.5 * (sqrt(real(epsC).^2 + imag(epsC).^2) - real(epsC)));
-#           elseif strcmp(RIorEPS, 'EPS')
-#               reP = real(epsC);
-#               imP = imag(epsC);
-#           else
-#               warning('Unknown option for parameter RIorEPS');
-#           end
-
-#           if strcmp(imSign, '-')
-#               cplx = reP - 1i*imP;
-#           elseif strcmp(imSign, '+')
-#               cplx = reP + 1i*imP;
-#           else
-#               warning('Unknown option for parameter sign');
-#           end
+        #   for idx = 1:1:length(C0)
+        #       epsC = epsC + (C0(idx)./EeV.^2) .* (exp(1i*Beta(idx)).*(Eg(idx)-EeV-1i*Gam(idx)).^Mu(idx) + exp(-1i*Beta(idx)).*(Eg(idx)+EeV+1i*Gam(idx)).^Mu(idx) - 2*real(exp(-1i*Beta(idx)).*(Eg(idx)+1i*Gam(idx)).^Mu(idx)) - 2*1i*Mu(idx).*EeV.*imag(exp(-1i*Beta(idx)).*(Eg(idx)+1i*Gam(idx)).^(Mu(idx)-1)) );
+        #   end
 
 # function ##[cplx, reP, imP] = n_meep_Lorentz(lambda, eps_f0, fres, gamm, sigm, RIorEPS, imSign, vali)
 
@@ -586,28 +552,8 @@ class material():
 #               epsC = epsC + ((fres(idx).^2 .* sigm(idx)) ./ (fres(idx).^2 - frq.^2 - 1i*gamm(idx) .* frq));
 #           end
 
-#           # defining output values
-#           if strcmp(RIorEPS, 'RI')
-#               reP = sqrt(0.5 * (sqrt(real(epsC).^2 + imag(epsC).^2) + real(epsC)));
-#               imP = sqrt(0.5 * (sqrt(real(epsC).^2 + imag(epsC).^2) - real(epsC)));
-#           elseif strcmp(RIorEPS, 'EPS')
-#               reP = real(epsC);
-#               imP = imag(epsC);
-#           else
-#               warning('Unknown option for parameter RIorEPS');
-#           end
-
-#           if strcmp(imSign, '-')
-#               cplx = reP - 1i*imP;
-#           elseif strcmp(imSign, '+')
-#               cplx = reP + 1i*imP;
-#           else
-#               warning('Unknown option for parameter sign');
-#           end
-
     @classmethod
-    def n_Tauc_Lorentz(cls, wl, EgeV, E0eV, AeV, CeV, eps_inf, RIorEPS, imSign,
-                       vali):
+    def n_Tauc_Lorentz(cls, wl, EgeV, AeV,  E0eV, CeV, eps_inf, vali):
 
         # Source: Jellison & Modine, APL 69:3, 371-373 (1996) and
         # Erratum: Jellison & Modine, APL 69:14, 2137 (1996)
@@ -615,66 +561,58 @@ class material():
         if wl[0] < vali[0] or wl[1] > vali[1]:
             print('Wavelenght out of model validity range!')
 
-        # starting values
+        Eg = EgeV
+        E0 = E0eV
+        A = AeV
+        C = CeV
         epsR = eps_inf
         epsI = 0
+        E = (1240 / wl)
 
-        # convert lambda to eV
-        EeV = np.divide(1240, wl)
+        # Substitutions:
+        t1 = (Eg **2 - E0**2) * E**2
+        t2 = (Eg**2 * C**2)
+        t3 = E0**2 * (E0**2 + 3* Eg**2)
+        a_ln = t1 + t2 - t3 
 
-        # for i in range(1,len(AeV), 1):
-        #               # ----- Absorption range (E > Egap)
-        #               epsI_tmp = (AeV(idx) * E0eV(idx) * CeV(idx) .* (EeV - EgeV(idx)).^2) ./ (EeV .* ((EeV.^2 - E0eV(idx)^2).^2 + (CeV(idx)^2 .* EeV.^2)));
+        t1 = (E**2 - E0**2) * (E0**2 + Eg**2)
+        t2 = Eg**2 * C**2
+        a_atan = t1 + t2
 
-        #               # ----- Transparent range (E <= Egap)
-        #               zix = find(EeV <= EgeV);
-        #               epsI_tmp(zix) = 0;
+        alpha = np.sqrt(4* E0**2 - C**2)
+        gamma = np.sqrt(E0**2 - (C**2/2))
+        t1 = (E**2 - gamma**2)**2
+        t2 = (0.25 * alpha**2 * C**2)
+        zeta4 = t1 + t2 
 
-        #               # ----- Summing several oscillators
-        #               epsI = epsI + epsI_tmp;
+        # Getting epsilon(E): equation (6) in the paper
+        t1 = epsR
+        t2 = (A * C * a_ln)/(np.pi * zeta4 * 2 * alpha * E0) * np.log((E0**2 + Eg**2 + alpha * Eg)/(E0**2 + Eg**2 - alpha * Eg))
+        t3 = -1 * (A * a_atan)/(np.pi * zeta4 * E0) * ( np.pi - np.arctan( (2*Eg+alpha)/C) + np.arctan((-2*Eg+alpha)/C))
+        t4 = 2 * (A * E0 * Eg)/(np.pi * zeta4 * alpha) * (E**2 - gamma**2) * (np.pi + 2* np.arctan(2*(gamma**2-Eg**2)/(alpha*C)))
+        t5 = -1 * (A * E0 * C)/(np.pi * zeta4) * (E**2 + Eg**2)/(E) * np.log(np.abs(E-Eg)/(E+Eg))
+        t6 = 2 * (A * E0 * C)/(np.pi * zeta4) * Eg * np.log((np.abs(E-Eg)*(E+Eg))/(np.sqrt((E0**2 - Eg**2)**2 + Eg**2 * C**2)))
+        epsR = (t1+t2+t3+t4+t5+t6)
 
-        #               # ----- substitutions
-        #               aln = (EgeV(idx)^2 - E0eV(idx)^2) .* EeV.^2 + (EgeV(idx)^2 .* CeV(idx)^2) - E0eV(idx)^2 .* (E0eV(idx)^2 + 3*EgeV(idx)^2);
-        #     atn = (EeV.^2 - E0eV(idx)^2) * (E0eV(idx)^2 + EgeV(idx)^2) + (EgeV(idx)^2 * CeV(idx)^2);
-        #     alp = sqrt(4*E0eV(idx)^2 - CeV(idx)^2);
-        #     gam = sqrt(E0eV(idx)^2 - 0.5*CeV(idx)^2);
-        #     zet = (EeV.^2 - gam^2).^2 + (0.25*alp^2 * CeV(idx)^2);
 
-        #     # ----- KKR expression from epsI (sum of several oscillators)
-        #     epsR = epsR + (AeV(idx) * CeV(idx) .* aln) ./ (2*pi * alp * zet * E0eV(idx)) ...
-        #             .* log((E0eV(idx)^2 + EgeV(idx)^2 + alp * EgeV) ./ (E0eV(idx)^2 + EgeV(idx)^2 - alp * EgeV(idx))) ...
-        #             - (AeV(idx) .* atn ) ./ (pi * zet * E0eV(idx)) ...
-        #             .* (pi - atan((2*EgeV(idx) + alp) ./ CeV(idx)) + atan((-2*EgeV(idx) + alp) ./ CeV(idx))) ...
-        #             + 2*AeV(idx) * E0eV(idx) * EgeV(idx) .* (EeV.^2 - gam^2) ./ (pi * zet * alp) ...
-        #             * (pi + 2*atan(2*(gam^2 - EgeV(idx)^2) / (alp * CeV(idx)))) ...
-        #             - AeV(idx) * E0eV(idx) * CeV(idx) .* (EeV.^2 + EgeV(idx)^2) ./ (pi * zet .* EeV) ...
-        #             .* log(abs(EeV - EgeV(idx)) ./ (EeV + EgeV(idx))) + 2*AeV(idx) * E0eV(idx) * CeV(idx) * EgeV(idx) ./ (pi * zet) ...
-        #             .* log(abs(EeV - EgeV(idx)) .* (EeV + EgeV(idx)) ./ sqrt((E0eV(idx)^2 - EgeV(idx)^2)^2 + EgeV(idx)^2 * CeV(idx)^2));
+        # Getting imaginary part of epsilon: equation (4):
+        a = 1/E * (A*E0*C*(E-Eg)**2)/((E**2-E0**2)**2+(C**2)*(E**2))
+        epsI = np.where(E > Eg, a,0)
 
-        # end
+
+        # refractive index n:
+        n = np.sqrt(0.5 * (np.sqrt(epsR**2 + epsI**2) + epsR))
+
+        # extinction coefficient k:
+        k = np.sqrt(0.5 * (np.sqrt(epsR**2 + epsI**2) - epsR))
+
+
+
         cls.epsilon_real = epsR
         cls.epsilon_imag = epsI
         cls.epsilon = epsR + epsI * 1j
-
-
-# defining output values
-# if strcmp(RIorEPS, 'RI')
-#     reP = sqrt(0.5 * (sqrt(epsR.^2 + epsI.^2) + epsR));
-#     imP = sqrt(0.5 * (sqrt(epsR.^2 + epsI.^2) - epsR));
-# elseif strcmp(RIorEPS, 'EPS')
-#     reP = epsR;
-#     imP = epsI;
-# else
-#     warning('Unknown option for parameter RIorEPS');
-# end
-
-# if strcmp(imSign, '-')
-#     cplx = reP - 1i*imP;
-# elseif strcmp(imSign, '+')
-#     cplx = reP + 1i*imP;
-# else
-#     warning('Unknown option for parameter sign');
-# end
+        cls.n = n
+        cls.k = k
 
 
 def get_cplx(mat_name, wl):  # Get refractive index for a given wavelength
@@ -694,16 +632,14 @@ def ask_for_parameters():
         except:
             print('Not a valid option!')
     if mat_name == 'list':
-        print('Au, ITO, ITO-RTA, Ag, Al, Cu, Cr, Ni, W, Ti, Pt')
+        print(sorted(SUPPORTED_MATERIALS))
         try:
             mat_name = input('Material: ')
         except:
             print('Not a valid option!')
     return min, max, step, mat_name
 
-
-if __name__ == '__main__':  # You can load this file to quickly plot n vs k.
-    import matplotlib.pyplot as plt
+def main():
     try:
         min, max, step, mat_name = ask_for_parameters()
         lambdas = np.arange(min, max+1, step)
@@ -715,3 +651,6 @@ if __name__ == '__main__':  # You can load this file to quickly plot n vs k.
         plt.show()
     except:
         print('Program closed.')
+
+if __name__ == '__main__':  # You can load this file to quickly plot n and k.
+    main()
