@@ -31,7 +31,7 @@ Sellmeier: no materials yet, but function should work
 -----------------
 Example usage in your scripts:
 import get_r_index
-Au = get_r_index.material(material='Au', wl=[100,1000,1000], imSign='+')
+Au = get_r_index.material(material='Au', wl=numpy.arange(100,1000,1), imSign='+')
 print(Au.refractive_index)
 
 OR:
@@ -283,14 +283,31 @@ class material():
             gam = [0.148, 0.945]  # damping
             frs = [0, 4.655]  # resonance freq
             vali = [100, 10000]
-
-            #material model : Drude Lorentz
             self.model = 'Drude_Lorentz'
-        # cplx, reP, imP = n_Drude_Lorentz(wl, w_p, amp, gam, frs, RIorEPS,                                 imSign, vali)
 
         elif self.mat_name == 'ITO-RTA':
 
             # fitting coefficients (IBD, Wetterau)
+            w_p = 1.944  # plasma freq
+            amp = [1, 32.248]  # oscillator strength
+            gam = [0.206, 0.274]  # damping
+            frs = [0, 5.136]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
+
+        elif self.mat_name == 'ITO-II':
+
+            # fitting coefficients (IBD, Künne)
+            w_p = 1.390  # plasma freq
+            amp = [1, 11.397]  # oscillator strength
+            gam = [0, 0.418]  # damping
+            frs = [0, 6.509]  # resonance freq
+            vali = [100, 10000]
+            self.model = 'Drude_Lorentz'
+
+        elif self.mat_name == 'ITO-RTA-II':
+
+            # fitting coefficients (IBD, Künne)
             w_p = 1.944  # plasma freq
             amp = [1, 32.248]  # oscillator strength
             gam = [0.206, 0.274]  # damping
