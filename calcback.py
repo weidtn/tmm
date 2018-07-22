@@ -2,10 +2,12 @@ import numpy as np
 import get_r_index
 import matplotlib.pyplot as plt
 import pandas as pd
+import itertools
+import time
 
 def init(df):
 
-    df2 = df 
+    df2 = df
     print(df2)
 
 # LAMBDAS = np.linspace(300,2400)
@@ -24,19 +26,31 @@ start = 0.1 # initial refractive index
 n_L = start
 data = np.empty((3,8000)) # array [[wl], [diff], [n_L]]
 lambda_vac = LAMBDAS[1000]
-
+start_time = time.time()
 # for lambda_vac, row in df.iterrows():
 #     print(lambda_vac)
-for i in range (1, 8000):
 
+i=0
+lsp_re = np.linspace(0.1, 5, 500)
+lsp_im = np.linspace(0.1, 25, 500)
+re, im = np.meshgrid(lsp_re, lsp_im, copy=False)
+matrix = 1j * im + re
+for c in matrix.flat:
+    i = i+1
+    n_L = np.round(c, 3)
+    x = np.sin(phi_i)*n_air/np.real(n_L)
+    if x < 1 or x > 1:
+        # print("NaN")
+        continue
+    print(n_L)
     # Snells Law:
-    phi_L = np.arcsin(np.deg2rad((np.sin(phi_i)*n_air)/n_L))
+    phi_L = np.arcsin((np.sin(phi_i)*n_air)/np.real(n_L))
     # phi_S = np.arcsin((np.sin(phi_L)*n_L)/n_S)
-    phi_S = np.arcsin(np.deg2rad((np.sin(phi_i)*n_air)/n_S))
+    phi_S = np.arcsin((np.sin(phi_i)*n_air)/n_S)
 
     # Fresnel equations:
     # air/layer:
-    rs_al = (n_air*np.cos(phi_i) - n_L * np.cos(phi_L)) / n_air * np.cos(phi_i + n_L * np.cos(phi_L))
+    rs_al = (n_air*np.cos(phi_i) - n_L * np.cos(phi_L)) / n_air * np.cos(phi_i) + n_L * np.cos(phi_L)
     rp_al = (n_L * np.cos(phi_i) - n_air * np.cos(phi_L)) / n_L * np.cos(phi_i) + n_air * np.cos(phi_L)
 
     # layer/substrate:
@@ -50,13 +64,16 @@ for i in range (1, 8000):
     rs_L = (rs_al + rs_ls * np.exp(1j*2*beta)) / (1+ rs_al * rs_ls * np.exp(1j * 2 * beta))
 
     rho_L = rp_L / rs_L
-    data[0][i] = lambda_vac
-    data[1][i] = abs(rho_L - rho_giv) 
+    # data[0][i] = lambda_vac
+    # data[1][i] = abs(rho_L - rho_giv) 
     data[2][i] = n_L
-    n_L = np.round(n_L + step, 4)
+    n_L = np.round(n_L + step, 3)
+
+
 # print(data)
 # print(np.argmin(diff))
 # print(start + (np.argmin(diff)*step))
 # print(diff[np.argmin(diff)])
 # plt.plot(data[1])
 # plt.show()
+# print(time.time()-start_time)

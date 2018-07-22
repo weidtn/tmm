@@ -65,7 +65,7 @@ def main():
             n_list = [1]  # starts with air
             for periods in range(0, num):
                 n_list.append(get_r_index.get_cplx('ITO', lambda_vac))
-                if aperiod.get_layer2() != 0:
+                if aperiod.get_layer2() not 0:
                     n_list.append(get_r_index.get_cplx('Al', lambda_vac))
                 n_list.append(3.49 + 0)  # Si (wafer)
             T_list.append(
@@ -83,7 +83,7 @@ def main():
             n_list = [1]  # starts with air
             for periods in range(0, num):
                 n_list.append(get_r_index.get_cplx('ITO', lambda_vac))
-                if aperiod.get_layer2() != 0:
+                if aperiod.get_layer2() not 0:
                     n_list.append(get_r_index.get_cplx('Al', lambda_vac))
             n_list.append(3.49 + 0)  # Si (wafer)
             e_data = tmm.tmm_core.ellips(n_list, d_list, 70 * degree,
