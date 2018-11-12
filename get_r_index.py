@@ -27,7 +27,7 @@ Available materials for these models:
 Drude-Lorentz:  Au, ITO, ITO-RTA, Ag, Al, Cu, Cr, Ni, W, Ti, Pt
 Tauc-Lorentz: SiO_2, SiO_2-II, Si_3N_4, ZrO_2, ZrO_2-II, a-Si
 Sellmeier: no materials yet, but function should work
-Leng-Lorentz: c-Si // TODO something is not right here
+Leng-Lorentz: c-Si
 -----------------
 Example usage in your scripts:
 import get_r_index
@@ -47,7 +47,7 @@ import matplotlib.pyplot as plt
 
 SUPPORTED_MATERIALS = [
     'Au', 'ITO', 'ITO-RTA', 'Ag', 'Al', 'Cu', 'Cr', 'Ni', 'W', 'Ti', 'Pt',
-    'SiO_2', 'SiO_2-II', 'Si_3N_4', 'ZrO_2', 'ZrO_2-II', 'a-Si'
+    'SiO_2', 'SiO_2-II', 'Si_3N_4', 'ZrO_2', 'ZrO_2-II', 'a-Si', 'c-Si'
 ]
 
 
@@ -550,16 +550,17 @@ class material():
             print('Wavelenght out of model validity range!')
         # convert lambda to eV
         EeV = 1240 / wl
-        epsC = eps_inf + m0 * EeV**x0 + 1j * k0 
+        epsC = eps_inf + m0 * EeV**x0 + 1j * k0
 
-        for i in range(0, len(C0), 1):
-            epsC = epsC + (C0[i] / EeV**2) * (
+        for i, C in enumerate(C0):
+            epsC = epsC + (C / (EeV**2)) * (
                 np.exp(1j * Beta[i]) *
                 (Eg[i] - EeV - 1j * Gam[i])**Mu[i] + np.exp(-1j * Beta[i]) *
-                (Eg[i] + EeV + 1j * Gam[i])**Mu[i]) - 2 * np.real(
-                    np.exp(-1j * Beta[i]) * (Eg[i] + 1j * Gam[i])**Mu[i]
-                ) - 2 * 1j * Mu[i] * EeV * np.imag(
-                    np.exp(-1j * Beta[i]) * (Eg[i] + 1j * Gam[i])**(Mu[i] - 1))
+                (Eg[i] + EeV + 1j * Gam[i])**Mu[i] - 2 * np.real(
+                    np.exp(-1j * Beta[i]) * (Eg[i] + 1j * Gam[i])**Mu[i]) -
+                2 * 1j * Mu[i] * EeV * np.imag(
+                    np.exp(-1j * Beta[i]) * (Eg[i] + 1j * Gam[i])**
+                    (Mu[i] - 1)))
 
         n = np.sqrt(
             0.5 * (np.sqrt((epsC.real**2) + (epsC.imag**2)) + epsC.real))
@@ -571,22 +572,6 @@ class material():
         cls.n = n
         cls.k = k
         cls.refractive_index = n + k * 1j
-
-        # function ##[cplx, reP, imP] = n_meep_Lorentz(lambda, eps_f0, fres, gamm, sigm, RIorEPS, imSign, vali)
-
-
-#           if ((min(lambda) < vali(1)) || (max(lambda) > vali(2)))
-#               warning('Wavelength out of model validity range!');
-#           end
-
-#           # convert lambda to normalized frequency (meep a=1)
-#           frq = 1000./lambda;
-
-#           epsC = eps_f0;
-
-#           for idx = 1:1:length(fres)
-#               epsC = epsC + ((fres(idx).^2 .* sigm(idx)) ./ (fres(idx).^2 - frq.^2 - 1i*gamm(idx) .* frq));
-#           end
 
     @classmethod
     def n_Tauc_Lorentz(cls, wl, EgeV, AeV, E0eV, CeV, eps_inf, vali):
@@ -691,8 +676,9 @@ def main():
         plt.plot(lambdas, mat.k, label='k')
         plt.legend()
         plt.show()
-    except:
-        print('Program closed.')
+    except Exception as e:
+        print("Error: ", e)
+    print('Program closed.')
 
 
 if __name__ == '__main__':  # You can load this file to quickly plot n and k.
