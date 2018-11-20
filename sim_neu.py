@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 # import calcback
 
 degree = pi / 180
-LAMBDAS = arange(300, 2400+1, 3)  # Wavelength, minimum, maximum, number of steps
+LAMBDAS = arange(400, 800+1, 1)  # Wavelength, minimum, maximum, number of steps
 ANGLE = 70*degree
 
 class layer:
@@ -76,7 +76,7 @@ def T(stack):
             n_list.append(n1)
             n2 = round(get_r_index.get_cplx(stack.period.lay2.material, lambda_vac),4)
             n_list.append(n2)
-        n_list.append(round(get_r_index.get_cplx('a-Si', lambda_vac), 4))
+        n_list.append(round(get_r_index.get_cplx('c-Si', lambda_vac), 4))
         T_list.append(tmm.coh_tmm('s', n_list, make_d_list(stack), ANGLE, lambda_vac)['T'])
     return T_list 
 
@@ -89,7 +89,7 @@ def R(stack):
             n_list.append(n1)
             n2 = round(get_r_index.get_cplx(stack.period.lay2.material, lambda_vac),4)
             n_list.append(n2)
-        n_list.append(round(get_r_index.get_cplx('a-Si', lambda_vac), 4))
+        n_list.append(round(get_r_index.get_cplx('c-Si', lambda_vac), 4))
         R_list.append(tmm.coh_tmm('s', n_list, make_d_list(stack), ANGLE, lambda_vac)['R'])
     return R_list 
 
@@ -103,7 +103,7 @@ def ellips (stack):
             n_list.append(n1)
             n2 = round(get_r_index.get_cplx(stack.period.lay2.material, lambda_vac),4)
             n_list.append(n2)
-        n_list.append(round(get_r_index.get_cplx('a-Si', lambda_vac), 4))
+        n_list.append(round(get_r_index.get_cplx('c-Si', lambda_vac), 4))
         e_data = tmm.ellips(n_list, make_d_list(stack), ANGLE, lambda_vac)
         Psis.append(e_data['psi']/degree)
         Deltas.append(e_data['Delta']/degree)
@@ -113,17 +113,15 @@ def ellips (stack):
 def plot(dataframe, mode):
     df = dataframe
     if mode ==  1 or mode == 3:
-        fig, ax1 = plt.subplots()
-        ax1.set_ylabel('Psi[°]')
+        f1 = plt.figure(1)
+        plt.ylabel('Psi[°]')
         # ax1.plot(df['lambda'], df['Psi'], label = 'Psi', color = 'tab:blue')
-        ax1 = df['Psi'].plot(color='b')
-        ax2 = ax1.twinx()
-        ax2 = df['Delta'].plot(color='r')
-        ax2.set_ylabel('Delta[°]')
+        f1 = df['Psi'].plot(color='b')
+        f2 = plt.figure(2)
+        f2 = df['Delta'].plot(color='r')
+        plt.ylabel('Delta[°]')
         # ax2.plot(df['lamba'], df['Delta'], label = 'Delta', color = 'tab:red')
-        fig.tight_layout()
-        fig.legend()
-        ax1.set_xlabel('Wavelength [nm]')
+        plt.xlabel('Wavelength [nm]')
     if mode == 2 or mode == 3:
         plt.figure()
         fig2 = df['T'].plot()
@@ -136,16 +134,19 @@ def main():
     # ITO = layer('ITO-RTA-II', 100)
     # aperiod = period(ITO, Al)
     ####
-    Ag = layer('Ag', 0)
-    SiO2 = layer('SiO_2-II', 300)
-    aperiod = period(Ag, SiO2)
+    # Ag = layer('Ag', 0)
+    SiO2 = layer('SiO_2-II', 100)
+    nothing = layer('SiO_2-II', 10) #we need 2 layers for a period, but thickness is 0
+    aperiod = period(SiO2, nothing)
     thestack = stack(aperiod, 1)
     deltapsi = ellips(thestack)
-    df = pd.DataFrame({'lambda':LAMBDAS, 'Psi': deltapsi[0], 'Delta': deltapsi[1], 'T':T(thestack), 'R':R(thestack)})
+    n_S = []
+    for lambdavac in LAMBDAS:
+        n_S.append(round(get_r_index.get_cplx('c-Si', lambdavac),4))
+    df = pd.DataFrame({'lambda':LAMBDAS, 'Psi': deltapsi[0], 'Delta': deltapsi[1], 'n_S':np.real(n_S), 'k_S':np.imag(n_S)})
     df.set_index('lambda', inplace=True)
-    # calcback.init(df)
     plot(df, 1)
-    df.to_csv('300nmSiO2.csv', encoding='utf-8')
+    df.to_csv('110nmSiO2.csv', encoding='utf-8')
     plt.show()
 
 
